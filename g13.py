@@ -12,13 +12,18 @@ def to_int(x):
    except:
       return x
 
+      
+      
 def lines_as_dicts(filename=CSV_PATH, cols=COLNAMES):
     i = 0 
     with open(filename) as f:
         for line in f:
             text_values = line.strip().split(";")
-            values = [to_int(x) for x in text_values] 
-            values[4]=text_values[4].replace(".","_")
+            values = [to_int(x) for x in text_values]
+            try:            
+                values[4]=text_values[4].replace(".","_")
+            except IndexError:
+                print(values)                
             d = dict(zip(cols,values))
             yield d               
       
@@ -55,12 +60,12 @@ assert d['11504'] == 288365
 #
 # ==================================================
 
-gen = filtered_dicts(sales_treshold=BLN*.5)
+gen = filtered_dicts()
 #lst = [next(gen) for _ in range(10)]
 
 
 
-with open("half.csv", 'w', encoding = "utf-8") as output_file:
+with open("all.csv", 'w', encoding = "utf-8") as output_file:
     dict_writer = csv.DictWriter(output_file, COLNAMES, delimiter=';', lineterminator='\n', quoting=csv.QUOTE_MINIMAL)
     dict_writer.writeheader()
     for i, d in enumerate(gen):
