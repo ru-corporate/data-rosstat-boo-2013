@@ -1,4 +1,7 @@
+import csv
 import pandas as pd
+
+BLN = 10**6
 
 from names import COLNAMES
 CSV_PATH = "G2013.csv"
@@ -10,15 +13,21 @@ def to_int(x):
       return x
 
 def lines_as_dicts(filename=CSV_PATH, cols=COLNAMES):
+    i = 0 
     with open(filename) as f:
         for line in f:
-            values = [to_int(x) for x in line.strip().split(";")] 
-            yield dict(zip(cols,values))               
+            text_values = line.strip().split(";")
+            values = [to_int(x) for x in text_values] 
+            values[4]=text_values[4].replace(".","_")
+            d = dict(zip(cols,values))
+            yield d               
       
 def filtered_dicts(sales_treshold=0):
     for d in lines_as_dicts():        
         if '21103' in d.keys() and d['21103'] > sales_treshold:
             yield d 
+            
+            
 
 
 # ==================================================
@@ -30,12 +39,8 @@ def filtered_dicts(sales_treshold=0):
 gen = filtered_dicts()
 z = [next(gen) for _ in range(75)]  
 
-for i in range(75):
-    print(i)
-    print(next(gen)['name'])
-   
+  
 # as seen at http://www.vng.com.ru/files/2013/2013.Forma.N.1.buhgalterskij.balans.pdf    
-
 d = z[56]
 assert d['name'] == 'Открытое акционерное общество "Волгограднефтегеофизика"'
 assert d['inn'] == 3446006100
@@ -44,23 +49,48 @@ assert d['11503'] == 189705
 # 4 is previous year = 2012
 assert d['11504'] == 288365
 
-
 # ==================================================
 #
 # Excercise 2:  get sales form all companies 
 #
 # ==================================================
 
+gen = filtered_dicts(sales_treshold=BLN*.5)
+#lst = [next(gen) for _ in range(10)]
+
+
+
+with open("half.csv", 'w', encoding = "utf-8") as output_file:
+    dict_writer = csv.DictWriter(output_file, COLNAMES, delimiter=';', lineterminator='\n', quoting=csv.QUOTE_MINIMAL)
+    dict_writer.writeheader()
+    for i, d in enumerate(gen):
+        print (i)
+        dict_writer.writerow(d)
+        
+        
+df = pd.read_csv("test.csv", delimiter=";")
+    
+
+
+
 #df = pd.DataFrame([x['21103'] for x in lines(sales_treshold=10000000)])
 
-#for e, x in enumerate(lines(sales_treshold=10*10^6)):
-#   print (e, x['21103'], x['Наименование'])   
+#BLN = 10**6
 
+
+#s = pd.DataFrame([x['21103'] for x in filtered_dicts(sales_treshold=50*BLN)])
+
+# for e, x in enumerate(filtered_dicts(sales_treshold=1000*BLN)):
+    # try:
+        # print (e, round(x['21103']/BLN,1), x['name'])   
+    # except:
+        # print (e, round(x['21103']/BLN,1), "Name not read.")   
 # gen = lines(sales_treshold=10*10^6)
 
-#r = [x['21103'] for x in lines(sales_treshold=100*10** 9)]
 
-BILLION = 10**6
+#r = [x['21103'] for x in lines(sales_treshold=1000*BILLION)]
+
+
 #for x in lines(sales_treshold=50 * BILLION):
 #    print (round(x['21103'] / BILLION, 1), x['Наименование']) 
 
