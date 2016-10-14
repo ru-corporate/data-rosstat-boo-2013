@@ -2,39 +2,99 @@ import csv
 import pandas as pd
 
 BLN = 10**6
+QUOTE_CHAR = '"'
 
 from names import COLNAMES
 CSV_PATH = "G2013.csv"
 
+OKVED_KEYS = ['okved1','okved2','okved3']
+
+def okved_tuple(code_string): 
+    code_string = str(code_string)
+    codes = [int(x) for x in code_string.split(".")]
+    return codes + [None] * (3-len(codes))
+
+tests = {"01": [1, None, None]
+    , "44.20": [44,20,None]
+  , "1.10.11": [1, 10,  11]}
+  
+for k, v in tests.items():
+    assert okved_tuple(k) == v  
+
+def okved_dict(code_string):
+    return dict(zip(OKVED_KEYS, okved_tuple(code_string)))
+
+def _dequote(line):
+     parts = line.split(QUOTE_CHAR)
+     org_type = parts[0].strip()
+     new_line = QUOTE_CHAR.join(parts[1:-1])
+     if new_line.count(QUOTE_CHAR)==1:
+         new_line = new_line + QUOTE_CHAR
+     return org_type, new_line    
+    
 def to_int(x):
    try:
       return int(x)
    except:
-      return x
-
-      
+      return x   
       
 def lines_as_dicts(filename=CSV_PATH, cols=COLNAMES):
-    i = 0 
     with open(filename) as f:
         for line in f:
+        
             text_values = line.strip().split(";")
-            values = [to_int(x) for x in text_values]
-            try:            
-                values[4]=text_values[4].replace(".","_")
-            except IndexError:
-                print(values)                
-            d = dict(zip(cols,values))
-            yield d               
+            values = [to_int(x) for x in text_values]            
+            d = dict(zip(cols,values))   
+
+            # split okved to 3 numbers            
+            d.update(okved_dict(d['okved']))
+            
+            # add region ny INN
+            inn_region = int(str(d['inn'])[0:2])
+            d.update({'region':inn_region})
+            
+            # extract org type and title   
+            org, title = _dequote(d['name'])
+            d.update({'org':org, 'title':title})
+  
+            # 383 and 385, standard unit is 384 (thousands)
+            unit_multipliers={383:10**-3, 384:1, 385:1}
+            m = unit_multipliers[d['unit']]
+            d.update({'mult':m})   
+
+            # todo/warning - will not write all new vakues to file!!!               
+            
+            yield d            
+      
       
 def filtered_dicts(sales_treshold=0):
     for d in lines_as_dicts():        
         if '21103' in d.keys() and d['21103'] > sales_treshold:
             yield d 
-            
-            
 
+          
+def truncate(iter, max_count):
+    """Shorter reader, max count."""  
+    i = 1
+    while i <= max_count:
+         try:
+             yield next(iter)     
+             i += 1             
+         except IndexError:
+              break              
+         except StopIteration:
+              break           
 
+def to_csv(gen, filename):
+    with open(filename, 'w', encoding = "utf-8") as output_file:
+        dict_writer = csv.DictWriter(output_file, COLNAMES, delimiter=';', 
+                                     lineterminator='\n', quoting=csv.QUOTE_MINIMAL)
+        dict_writer.writeheader()
+        for i, d in enumerate(gen):
+            print (i)
+            dict_writer.writerow(d)
+
+            
 # ==================================================
 #
 # Excercise 1:  compare data to real company report 
@@ -56,56 +116,39 @@ assert d['11504'] == 288365
 
 # ==================================================
 #
-# Excercise 2:  get sales form all companies 
+# Excercise 2:  get 10 dicts
 #
 # ==================================================
 
 gen = filtered_dicts()
-#lst = [next(gen) for _ in range(10)]
-
-
-
-with open("all.csv", 'w', encoding = "utf-8") as output_file:
-    dict_writer = csv.DictWriter(output_file, COLNAMES, delimiter=';', lineterminator='\n', quoting=csv.QUOTE_MINIMAL)
-    dict_writer.writeheader()
-    for i, d in enumerate(gen):
-        print (i)
-        dict_writer.writerow(d)
-        
-        
-df = pd.read_csv("test.csv", delimiter=";")
-    
-
-
-
-#df = pd.DataFrame([x['21103'] for x in lines(sales_treshold=10000000)])
-
-#BLN = 10**6
-
-
-#s = pd.DataFrame([x['21103'] for x in filtered_dicts(sales_treshold=50*BLN)])
-
-# for e, x in enumerate(filtered_dicts(sales_treshold=1000*BLN)):
-    # try:
-        # print (e, round(x['21103']/BLN,1), x['name'])   
-    # except:
-        # print (e, round(x['21103']/BLN,1), "Name not read.")   
-# gen = lines(sales_treshold=10*10^6)
-
-
-#r = [x['21103'] for x in lines(sales_treshold=1000*BILLION)]
-
-
-#for x in lines(sales_treshold=50 * BILLION):
-#    print (round(x['21103'] / BILLION, 1), x['Наименование']) 
-
-
-
+for x in truncate(gen, 10):
+    print(x['org'], x['title'])
+    print(x['okved'], x['okved1'], x['okved2'], x['okved3'])
+    print(x['region'], x['inn']) 
+    print(x['mult']) 
+    print("---------------------------")
 
 
 # ==================================================
 #
-# Excercise 0: make dataframe, gets out of memory
+# Excercise 3:  write to csv
+#
+# ==================================================
+
+
+#to_csv(filtered_dicts(sales_treshold=BLN)
+#       , "bln.csv")
+
+#to_csv(filtered_dicts(sales_treshold=0.5*BLN)
+#       , "half.csv")
+
+#to_csv(filtered_dicts(sales_treshold=0)
+#       , "all.csv")    
+
+
+# ==================================================
+#
+# make dataframe, gets out of memory
 #
 # ==================================================
 
