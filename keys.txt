@@ -1,0 +1,16 @@
+OKVED_KEYS = ['okved1','okved2','okved3']
+
+def split_okved(s):
+    d = {}
+    codes = s.split(".")
+	d['okved_1'] = codes[0]
+	if len(codes) >= 2:
+	    d['okved_2'] = codes[1]
+	if len(codes) == 3:
+	    d = dict(zip(OKVED_KEYS, codes))
+		
+		
+	
+	
+	
+	
