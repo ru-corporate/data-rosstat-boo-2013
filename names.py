@@ -270,6 +270,8 @@ DOC_NAMES = """     1, Наименование                                 
    264, 63003                                             , N,   15
    265, 64003                                             , N,   15"""
    
+from copy import copy
+
 def to_list(x):
     return [str(a).strip() for a in x.split(",")]
     
@@ -277,6 +279,30 @@ _ = [to_list(x) for x in DOC_NAMES.split("\n")]
 COLNAMES = [x[1] for x in _]
 
 # ['Наименование', 'ОКПО', 'ОКОПФ', 'ОКФС', 'ОКВЭД', 'ИНН', 'Код единицы измерения', 'Тип отчета']
-COLNAMES[0:8] = ['name', 'okpo', 'okopf', 'okfs', 'okved', 'inn', 'unit', 'report_type']
-
+firm_attributes = ['name', 'okpo', 'okopf', 'okfs', 'okved', 'inn', 'unit', 'report_type']
+COLNAMES[0:8] = firm_attributes 
+assert COLNAMES[8] == '11103'
 # 'okfs' - формы собственности http://ip-nalog.ru/kody-statistiki/okfs.html
+
+
+cur_year_labels = [x for x in COLNAMES if x.endswith("3") or x.startswith('3')]
+true_cur_year_labels = copy(cur_year_labels)
+for i, x in enumerate(cur_year_labels):
+    if x.endswith("3") and not x.startswith('3'):
+        true_cur_year_labels[i] = true_cur_year_labels[i][0:-1]
+    
+prev_year_labels = [x for x in COLNAMES if x.endswith("4") and not x.startswith('3')] 
+true_prev_year_labels = [x[0:-1] for x in prev_year_labels]
+
+test = firm_attributes + cur_year_labels + prev_year_labels
+assert sorted(test) == sorted(COLNAMES) 
+
+
+COLDICT = {'current':  cur_year_labels,
+           'true_current': true_cur_year_labels,
+           'previous': prev_year_labels,
+           'true_prev': true_prev_year_labels,
+           'firm':     firm_attributes,
+           'firm_text': ['name', 'okved'],
+           'firm_int':  ['okpo', 'okopf', 'okfs', 'inn', 'unit', 'report_type']} 
+           
