@@ -5,11 +5,14 @@ Created on Mon Oct 17 02:07:11 2016
 @author: Евгений
 """
 
-# import pandas as pd
-# z = pd.read_csv("_all2013.csv", sep = ";")
+import pandas as pd
+z = pd.read_csv("_all2013.csv", sep = ";")
 # d = z[['inn','okved','title','name','_2110','_1410']]
 # s = d[d['_1410']>0].sort_values('okved')
 
+def save(df, filebase):
+    df.to_csv(filebase + ".csv", sep = ";", index = False)
+    df.to_excel(filebase+ ".xlsx", index = False)
 
 MORE_INN = [5640005415,7726311464,7717665234,
             1434045743, 7701897590, 2319008223,
@@ -19,6 +22,11 @@ MORE_INN = [5640005415,7726311464,7717665234,
             
 NOT_FOUND = [5032178356, 5010032360, 262016287]
 
+
+from names import inn_list
+# VERY SLOW HERE
+ix = [x in inn_list for x in z['inn']]
+save(z[ix])
 
 
 def get_inn(s):
@@ -33,6 +41,9 @@ LOOKUP = ["ВКМ-Сталь", "Адмиралтейские верфи"
           ,"Уралвагонзавод", "Славобласть"]
 for l in LOOKUP:
     print(get_inn(l))
+
+#ix = [x in MORE_INN for x in z['inn']]
+
 
 #ix = [x in MORE_INN for x in z['inn']]
 #z[ix].to_csv("additional.csv", sep = ";", index = False)
