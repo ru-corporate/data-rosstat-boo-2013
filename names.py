@@ -1,6 +1,5 @@
 #
-#
-# From:
+# Column names from:
 # http://www.gks.ru/opendata/storage/7708234640-bdboo2013/structure-20131231t000000.TTL
 #
 
@@ -269,9 +268,8 @@ DOC_NAMES = """     1, Наименование                                 
    263, 63503                                             , N,   15
    264, 63003                                             , N,   15
    265, 64003                                             , N,   15"""
-   
-from copy import copy
 
+   
 def to_list(x):
     return [str(a).strip() for a in x.split(",")]
     
@@ -279,41 +277,44 @@ _ = [to_list(x) for x in DOC_NAMES.split("\n")]
 COLNAMES = [x[1] for x in _]
 
 # ['Наименование', 'ОКПО', 'ОКОПФ', 'ОКФС', 'ОКВЭД', 'ИНН', 'Код единицы измерения', 'Тип отчета']
+# 'okfs' - формы собственности http://ip-nalog.ru/kody-statistiki/okfs.html
 firm_attributes = ['name', 'okpo', 'okopf', 'okfs', 'okved', 'inn', 'unit', 'report_type']
 COLNAMES[0:8] = firm_attributes 
+assert COLNAMES[7] == 'report_type'
 assert COLNAMES[8] == '11103'
-# 'okfs' - формы собственности http://ip-nalog.ru/kody-statistiki/okfs.html
+
+# баланс
+ap  = [x for x in COLNAMES if x.startswith("1")]
+
+# отчет о прибыли и убытках
+opu = [x for x in COLNAMES if x.startswith("2")] 
+
+# отчет о движении денежных средств
+cf  = [x for x in COLNAMES if x.startswith("4")] 
+
+# отчет о движении денежных средств
+dk  = [x for x in COLNAMES if x.startswith("3")] 
+
+# отчет о движении денежных средств
+tsel  = [x for x in COLNAMES if x.startswith("6")] 
 
 
-cur_year_labels = [x for x in COLNAMES if x.endswith("3") or x.startswith('3')]
-true_cur_year_labels = copy(cur_year_labels)
-for i, x in enumerate(cur_year_labels):
-    if x.endswith("3") and not x.startswith('3'):
-        true_cur_year_labels[i] = true_cur_year_labels[i][0:-1]
-    
-prev_year_labels = [x for x in COLNAMES if x.endswith("4") and not x.startswith('3')] 
-true_prev_year_labels = [x[0:-1] for x in prev_year_labels]
-
-test = firm_attributes + cur_year_labels + prev_year_labels
-assert sorted(test) == sorted(COLNAMES) 
+assert ap+opu+dk+cf+tsel == COLNAMES[8:]
+assert firm_attributes+ap+opu+dk+cf+tsel == COLNAMES
 
 
-COLDICT = {'current':  cur_year_labels,
-           'true_current': true_cur_year_labels,
-           'previous': prev_year_labels,
-           'true_prev': true_prev_year_labels,
-           'firm':     firm_attributes,
-           'firm_text': ['name', 'okved'],
-           'firm_int':  ['okpo', 'okopf', 'okfs', 'inn', 'unit', 'report_type']
-           }
-           
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Oct 18 09:03:42 2016
+cur_year_data_labels  = [x for x in ap+opu+cf if x.endswith("3")]
+prev_year_data_labels = [x for x in ap+opu+cf if x.endswith("4")]
+assert sorted(firm_attributes + cur_year_data_labels + prev_year_data_labels+dk+tsel) == sorted(COLNAMES) 
 
-@author: Евгений
-"""
 
+current = cur_year_data_labels
+prev = prev_year_data_labels
+firm = firm_attributes
+#does nor include ['name', 'okved']
+firm_int_fields = ['okpo', 'okopf', 'okfs', 'inn', 'unit', 'report_type']
+        
+        
 inn1 = """6123015784
 2342016712
 3904612524
@@ -439,11 +440,12 @@ inn1 = """6123015784
 7734046851
 7714619159""".split('\n')
 
-MORE_INN = [5640005415,7726311464,7717665234,
+MORE_INN = [5640005415, 7726311464, 7717665234,
             1434045743, 7701897590, 2319008223,
-            2310106385,5406409682,4003034171,
-            2723127073,276135911,5261086749,
+            2310106385, 5406409682, 4003034171,
+            2723127073, 276135911,  5261086749,
             2009000023, 6234020740]
 
+            
 inn_list = list(set(inn1+MORE_INN))
 print(len(inn_list), "projects")           
