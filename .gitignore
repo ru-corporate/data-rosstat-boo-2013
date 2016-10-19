@@ -1,2 +1,4 @@
 *.csv
 large_with_debt.xlsx
+*.pyc
+.cache/
