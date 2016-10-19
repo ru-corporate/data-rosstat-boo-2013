@@ -1,5 +1,9 @@
 *.csv
-large_with_debt.xlsx
 *.pyc
 .cache/*
+
+# large xls file
+large_with_debt.xlsx
+
+# small csv file 
 !projects.csv
