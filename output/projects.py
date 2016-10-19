@@ -135,12 +135,12 @@ sub = OrderedDict([(k,v) for k,v in rename.items() if k!=v])
 my_cols = ['year', 'okved1', 'region', 'title',  'inn'] + [x for x in sub.keys()]
 data_cols =  [x for x in sub.values()]
 
-df = df0[my_cols].rename(columns=sub).set_index('inn')
+df = df0[my_cols].rename(columns=sub)
 for col in data_cols:
     df[col] = (df[col] / 10 ** 6).round(1) 
 
-#
-# save(df, "projects_compact")
+save(df, "projects_compact")
+df = df.set_index('inn')
 #
 
 # -----------------------------------------------------------------------------
@@ -149,14 +149,30 @@ for col in data_cols:
 #   Analysis of dataframe, produce graphs
 #
 
+def hist(ts):
+    pd.DataFrame.hist(pd.DataFrame(ts), bins=20)
+    
+
 # Фондоотдача
 y = df.sales/df.of
 y = y[y<1]
-pd.DataFrame.hist(pd.DataFrame(y), bins=20)
+hist(y)
+y = y[y>0.01]
+hist(y)
 
 # Процентные ставки   
 ir = df.cash_interest/(df.debt_long + df.debt_short) 
-pd.DataFrame.hist(pd.DataFrame(ir), bins=20)
+hist(ir)
+ir = ir[ir>0.01] 
+hist(ir)
+print(len(ir), "projects")
 
+# -----------------------------------------------------------------------------
+"""
+Note:
+- may have duplicate rows, possibly different inns
+- 
+
+"""
 
 # -----------------------------------------------------------------------------
