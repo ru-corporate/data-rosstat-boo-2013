@@ -1,5 +1,17 @@
 # -*- coding: utf-8 -*-
-from reader import lines_as_dicts, get_datapoints
+from reader import lines_as_dicts
+
+def get_datapoints(d, fields=supported_data_fields):
+    c = d['okpo']  
+    y = d['year']
+    for k in fields:
+        yield {'fk_okpo':c, 
+               'year'   :y,
+               'field'  :int(k), 
+               'val' :d[k]
+               }
+
+               
 from sqlalchemy import create_engine
 from sqlalchemy.sql import select
 

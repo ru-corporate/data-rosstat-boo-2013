@@ -1,11 +1,13 @@
 import csv
+import os
 
-BLN = 10**6
+
 QUOTE_CHAR = '"'
 
 from names import COLNAMES
 
 # http://www.gks.ru/opendata/storage/7708234640-bdboo2013/data-20150707t000000-structure-20131231t000000.rar
+
 CSV_PATH = "G2013.csv"
 YEAR=2013
 
@@ -18,14 +20,6 @@ OKVED_KEYS = ['okved1','okved2','okved3']
 def okved_tuple(code_string): 
     codes = [int(x) for x in str(code_string).split(".")]
     return codes + [None] * (3-len(codes))
-
-tests = {   1: [1, None, None]
-       , "01": [1, None, None]
-    , "44.20": [44,20,None]
-  , "1.10.11": [1, 10,  11]}
-  
-for k, v in tests.items():
-    assert okved_tuple(k) == v  
 
 def get_okved_dicts(code_string):
     return dict(zip(OKVED_KEYS, okved_tuple(code_string)))
@@ -45,7 +39,7 @@ def dequote(line):
      return org_type, new_line.strip()    
     
 #
-# Read file
+# Read CSV file
 #
 
 def get_csv_lines(filename=CSV_PATH, cols=COLNAMES):
@@ -58,110 +52,100 @@ def get_csv_lines(filename=CSV_PATH, cols=COLNAMES):
 
 from names import firm, firm_int_fields, current, prev
 
+data_fields = [x[0:-1] for x in current]
 data_labels = current+prev
-new = OKVED_KEYS + ['region', 'org', 'title']
-   
-mapper = dict(zip(firm,firm))
-mapper.update(zip(new,new))
-mapper.update(dict(zip(data_labels,[x[0:-1]  for x in data_labels])))
+new = ['year'] + OKVED_KEYS + ['region', 'org', 'title']   
+mapper=dict(zip(data_labels,[x[0:-1] for x in data_labels]))
 
-supported_data_fields = [x[0:-1] for x in current]
-
-OUTPUT_CSV_COLUMNS = ['year'] + new + firm  + ["_"+x[0:-1] for x in current]
+OUTPUT_CSV_COLUMNS = new + firm + data_fields
 
 def lines_as_dicts(filename=CSV_PATH, cols=COLNAMES, year=YEAR, 
                    yield_previous_year=False):
 
-    unit_multipliers={'383':10**-3, '384':1, '385':1}
+    unit_multipliers={'383':0.001, '384':1, '385':1000}
     
     if yield_previous_year:
-        rd = {'year':year-1}
-        ix = firm + new + prev
-    else:
-        rd = {'year':year}
-        ix = firm + new + current  
-                   
-    for d in get_csv_lines(filename, cols):
+        year=year-1
+        ix = prev
+    else:        
+        ix = current
+
+    for d in get_csv_lines(filename, cols):       
+           
+        r = {'year':year}        
+        
+        # split okved to 3 numbers            
+        r.update(get_okved_dicts(d['okved']))
+        
+        # add region by INN
+        inn_region = int(str(d['inn'])[0:2])
+        r.update({'region':inn_region})
+        
+        # extract org type and title   
+        org, title = dequote(d['name'])
+        r.update({'org':org, 'title':title})
 
         # adjust units - standard unit is 384 (thousands)
         # 383 is rubles, must mult by 10^-3, 385 is roubles for RJD                 
         m = unit_multipliers[d['unit']]
+        r.update((mapper[k], m*int(d[k])) for k in ix)
+        r.update((k, int(d[k])) for k in firm_int_fields)
         
-        #import pdb; pdb.set_trace()
-        d.update((k, m*int(d[k])) for k in current + prev)
-        d.update((k, int(d[k])) for k in firm_int_fields)
+        r['name']=d['name']
+        r['okved']=d['okved']
         
-        # split okved to 3 numbers            
-        d.update(get_okved_dicts(d['okved']))
-        
-        # add region by INN
-        inn_region = int(str(d['inn'])[0:2])
-        d.update({'region':inn_region})
-        
-        # extract org type and title   
-        org, title = dequote(d['name'])
-        d.update({'org':org, 'title':title})
-        
-                 
-        rd.update((mapper[k], d[k]) for k in ix)
-
-        yield rd  
-
-def get_datapoints(d, fields=supported_data_fields):
-    c = d['okpo']  
-    y = d['year']
-    for k in fields:
-        yield {'fk_okpo':c, 
-               'year'   :y,
-               'field'  :int(k), 
-               'val' :d[k]
-               }
+        yield r
 
 
-def to_csv(gen, filename, cols=OUTPUT_CSV_COLUMNS):
+def to_csv(gen, filename, folder="output", cols=OUTPUT_CSV_COLUMNS):
 
-    with open(filename, 'w', encoding = "utf-8") as output_file:    
+    path = os.path.join(folder, filename)
+    
+    with open(path, 'w', encoding = "utf-8") as output_file:    
         dict_writer = csv.DictWriter(output_file, cols, delimiter=';', 
                                      lineterminator='\n', quoting=csv.QUOTE_MINIMAL)
         dict_writer.writeheader()
-        for i, d in enumerate(gen):
-            print (i)
+        for d in gen:            
             dict_writer.writerow(d)
 
-
-def filtered_dicts(sales_treshold=0):
-    i = 0
-    for d in lines_as_dicts():        
-        if '_2110' in d.keys() and d['_2110'] > sales_treshold:
-            print(i, d['title'], d['_2110'])
-            i = i + 1
-            yield d 
-
-def filtered_dicts2():
-    i = 0
-    for d in lines_as_dicts():
-        flag1 = '_2110' in d.keys() and d['_2110'] > BLN
-        flag2 = '_1410' in d.keys() and d['_1410'] > BLN
-        #print(flag1, flag2)
-        if flag1 or flag2:
-            print(i, d['title'], d['_2110'])
-            i = i + 1
-            yield d 
-
-def test_csv_iter():
-    gen = lines_as_dicts() 
-    n = 10
-    z = [next(gen) for _ in range(n)]
-    assert len(z) == n            
+if __name__=="__main__":
+    
+    to_csv(gen=lines_as_dicts(),
+           filename="all2013.csv")   
+    
+    to_csv(gen=lines_as_dicts(yield_previous_year=True),
+           filename="all2012.csv")   
+           
+           
+           
 
 
-if __name__=="__main__":  
-      test_csv_iter()
-      for x in range(100):
-         a = next(lines_as_dicts())
-         print([x[2] for x in get_balance_datastream(a)])
-      
 
+#def filtered_dicts(sales_treshold=0):
+#    i = 0
+#    for d in lines_as_dicts():        
+#        if '_2110' in d.keys() and d['_2110'] > sales_treshold:
+#            print(i, d['title'], d['_2110'])
+#            i = i + 1
+#            yield d 
+#
+#def filtered_dicts2():
+#    i = 0
+#    for d in lines_as_dicts():
+#        flag1 = '_2110' in d.keys() and d['_2110'] > BLN
+#        flag2 = '_1410' in d.keys() and d['_1410'] > BLN
+#        #print(flag1, flag2)
+#        if flag1 or flag2:
+#            print(i, d['title'], d['_2110'])
+#            i = i + 1
+#            yield d 
+#
+#def test_csv_iter():
+#    gen = lines_as_dicts() 
+#    n = 10
+#    z = [next(gen) for _ in range(n)]
+#    assert len(z) == n 
+#
 
 
     #to_csv(filtered_dicts(sales_treshold=100*BLN), "_100bln2013.csv") 
