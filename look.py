@@ -16,7 +16,8 @@ def save(df, filebase, folder="output"):
 df = pd.read_csv("output/all2013.csv", sep = ";")
 
 BLN = 10**6
-#a = df[df['2110']>BLN]
+a = df[df['2110']>BLN]
+save(a, "bln")
 
 b = df[(df['2110']>BLN) | (df['1410']>0)]
 save(b, "large_with_debt")
