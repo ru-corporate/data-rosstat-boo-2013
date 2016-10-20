@@ -27,7 +27,7 @@ save(a, "bln")
 #b = df[(df['2110']>BLN) | (df['1410']>0)]
 #save(b, "large_with_debt")
 
-from names import inn_list
-ix = df['inn'].isin(inn_list)
+from inn import inns, is_default
+ix = df['inn'].isin(inns)
 c = df[ix].sort_values(['okved1','2110'])
 save(c, "projects")
