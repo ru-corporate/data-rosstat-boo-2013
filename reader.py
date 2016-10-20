@@ -1,3 +1,6 @@
+"""Generate current and previous year CSV files based on source CSV.
+Lists forms 1 (balance), 2 (p&l) and 4(cash flow)."""
+
 import csv
 import os
 
@@ -8,38 +11,30 @@ from names import COLNAMES
 CSV_PATH = os.path.join("rosstat", "G2013.csv")
 YEAR = 2013
 
-#
-#   Extract 3 levels of okved code from string
-#
 
 OKVED_KEYS = ['okved1','okved2','okved3']
 
-def okved_tuple(code_string): 
+def _okved_tuple(code_string): 
     codes = [int(x) for x in str(code_string).split(".")]
     return codes + [None] * (3-len(codes))
 
 def get_okved_dicts(code_string):
-    return dict(zip(OKVED_KEYS, okved_tuple(code_string)))
-
-#
-#   Split company name to orgaisation and tiile
-#
+    """Extract 3 levels of okved code from code_string line 80.10.02"""
+    return dict(zip(OKVED_KEYS, _okved_tuple(code_string)))
 
 def dequote(line):
-     parts = line.split(QUOTE_CHAR)
-     org_type = parts[0].strip()
-     new_line = QUOTE_CHAR.join(parts[1:-1])
-     if new_line.count(QUOTE_CHAR)==1:
-         new_line = new_line + QUOTE_CHAR
-     if not new_line:
-        new_line = line         
-     return org_type, new_line.strip()    
+    """Split company name to orgaisation and tiile"""
+    parts = line.split(QUOTE_CHAR)
+    org_type = parts[0].strip()
+    new_line = QUOTE_CHAR.join(parts[1:-1])
+    if new_line.count(QUOTE_CHAR)==1:
+        new_line = new_line + QUOTE_CHAR
+    if not new_line:
+       new_line = line         
+    return org_type, new_line.strip()    
     
-#
-#   Read CSV file
-#
-
 def get_csv_lines(filename=CSV_PATH, cols=COLNAMES):
+    """Read CSV file"""
     with open(filename) as f:
         for line in f:
             if ";" in line:
@@ -111,6 +106,4 @@ if __name__=="__main__":
            filename="all2013.csv")   
     
     to_csv(gen=lines_as_dicts(yield_previous_year=True),
-           filename="all2012.csv")   
-           
-           
+           filename="all2012.csv")
