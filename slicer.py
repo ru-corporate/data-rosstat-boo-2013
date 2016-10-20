@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 
-Based on *all2013.csv* create following csv/xls files in *output* folder:
+Create following csv/xls files in *output* folder based on *all2013.csv* :
 
     bln.*
     large_with_debt.* (optional)
@@ -30,4 +30,8 @@ save(a, "bln")
 from inn import inns, is_default
 ix = df['inn'].isin(inns)
 c = df[ix].sort_values(['okved1','2110'])
+_ = {i:d for i, d in zip(inns, is_default)}
+c['is_default'] = [_[x] for x in c['inn']] 
 save(c, "projects")
+
+
