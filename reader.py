@@ -1,14 +1,17 @@
-"""Generate current and previous year CSV files based on source CSV.
-Lists forms 1 (balance), 2 (p&l) and 4(cash flow)."""
+"""
+
+   Generate current and previous year CSV files based on source CSV.
+   Lists forms 1 (balance), 2 (p&l) and 4(cash flow).
+
+"""
 
 import csv
 import os
+from _names import firm, firm_int_fields, current, prev
 
 QUOTE_CHAR = '"'
-from names import COLNAMES
-
 # http://www.gks.ru/opendata/storage/7708234640-bdboo2013/data-20150707t000000-structure-20131231t000000.rar
-CSV_PATH = os.path.join("rosstat", "G2013.csv")
+SOURCE_CSV_PATH = os.path.join("rosstat", "G2013.csv")
 YEAR = 2013
 
 
@@ -33,16 +36,13 @@ def dequote(line):
        new_line = line         
     return org_type, new_line.strip()    
     
-def get_csv_lines(filename=CSV_PATH, cols=COLNAMES):
+def get_csv_lines(filename=SOURCE_CSV_PATH, cols=COLNAMES):
     """Read CSV file"""
     with open(filename) as f:
         for line in f:
             if ";" in line:
                text_values = line.strip().split(";")
                yield dict(zip(cols,text_values))                
-
-
-from names import firm, firm_int_fields, current, prev
 
 data_fields = [x[0:-1] for x in current]
 data_labels = current+prev
@@ -103,7 +103,7 @@ def to_csv(gen, filename, folder="output", cols=OUTPUT_CSV_COLUMNS):
 if __name__=="__main__":
     
     to_csv(gen=lines_as_dicts(),
-           filename="all2013.csv")   
+           filename=os.path.join("rosstat","all2013.csv"))   
     
     to_csv(gen=lines_as_dicts(yield_previous_year=True),
-           filename="all2012.csv")
+           filename=os.path.join("rosstat","all2012.csv"))
