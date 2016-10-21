@@ -67,6 +67,13 @@ print("Value added:", va.sum())
 # основные средства
 print(df.of.sum())
 
+
+
+
+df.plot.scatter(x='exp_interest',y='cash_interest')
+
+
+
 #todo:
 #     need participation share   
 #     taxes
