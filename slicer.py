@@ -1,46 +1,34 @@
 # -*- coding: utf-8 -*-
-"""
-
-Create following csv/xls files in *output* folder based on *all2013.csv* :
-
-    bln.*
-    large_with_debt.* (optional)
-    projects.*
-    projects_compact.*
-
-"""
+"""Create *projects.xlsx* based on *all2013.csv* and *inn.csv*"""
 
 import pandas as pd
 from collections import OrderedDict
 import os
-from _inn import inns, is_default
-
-SUBSETS_FOLDER = ["rosstat", "subsets"]
 
 def save(df, filebase, folder=None):
     if folder:
-        pathbase = os.path.join(*folder, filebase)    
+        pathbase = os.path.join(folder, filebase)    
     else:
         pathbase = filebase
     df.to_csv(pathbase + ".csv", sep = ";", index = False, encoding = "utf-8")
     df.to_excel(pathbase + ".xlsx", index = False)
 
+
 df = pd.read_csv("rosstat/all2013.csv", sep = ";")
+inn_df = pd.read_csv('config/inn.csv', delimiter = "\t", 
+                     header = 0, names = ['inn','tag'])
 
-BLN = 10**6
-a = df[df['2110']>BLN]
-save(a, "bln", folder=SUBSETS_FOLDER)
 
-# file too large, not currently used
-# b = df[(df['2110']>BLN) | (df['1410']>0)]
-# save(b, "large_with_debt", folder=SUBSETS_FOLDER)
+print("INN file has %d duplicated rows" % len(inn_df[inn_df.duplicated()]))
+inn_df = inn_df.drop_duplicates()
 
-ix = df['inn'].isin(inns)
-c = df[ix].sort_values(['okved1','2110'])
-_ = {i:d for i, d in zip(inns, is_default)}
-c['is_default'] = [_[x] for x in c['inn']] 
-save(c, "projects", folder=["projects"])
 
+project_df = pd.merge(inn_df, df, on='inn', how='left')
+project_df['is_found'] = project_df.year.notnull()
+project_df = project_df.sort_values(['is_found','okved1','2110'],
+                                    ascending=[False, True, True])
+
+save(project_df, "projects_compact", folder='projects')
 
 #
 #   Create files with fewer columns
@@ -167,27 +155,34 @@ rename =  OrderedDict([
 
 sub = OrderedDict([(k,v) for k,v in rename.items() if k!=v])      
 my_cols = ['year', 'okved1', 'region', 
-           'title',  'inn', 'is_default'] + [x for x in sub.keys()]
+           'title',  'inn', 'tag'] + [x for x in sub.keys()]
 data_cols =  [x for x in sub.values()]
 
-ef = c[my_cols].rename(columns=sub)
+aggr_dict = {"Фрештел (Конс)":[7727560086, 7718571010, 
+                              7710646874, 7701641245]}
+# do aggregation
+
+
+compact_df = project_df[my_cols].rename(columns=sub)
 for col in data_cols:
-    ef[col] = (ef[col] / 10 ** 6).round(1) 
+    compact_df[col] = (compact_df[col] / 10 ** 6).round(1) 
 
-# активы = пассивы  
-flag1 = ef.ta-ef.tp
-assert abs(flag1).sum() < 15
-
-# внеоборотные активы + оборотные активы = активы
-flag2 = ef.ta_fix + ef.ta_nonfix - ef.ta
-assert abs(flag2).sum() < 15
-
-# капитал + долгосрочные обязательства + краткосрочные обязательства = всего пассивы
-flag3 = ef.tp_cap+ef.tp_short+ef.tp_long-ef.tp
-assert abs(flag3).sum() < 15  
+def check_balance(df):
+    # активы = пассивы  
+    flag1 = df.ta-df.tp
+    assert abs(flag1).sum() < 15
+    
+    # внеоборотные активы + оборотные активы = активы
+    flag2 = df.ta_fix + df.ta_nonfix - df.ta
+    assert abs(flag2).sum() < 15
+    
+    # капитал + долгосрочные обязательства + краткосрочные обязательства = всего пассивы
+    flag3 = df.tp_cap+df.tp_short+df.tp_long-df.tp
+    assert abs(flag3).sum() < 15  
  
 # 
 # WARNING:
 #     df may have duplicate rows
  
-save(ef, "projects_compact")
+            
+save(compact_df, "projects_compact", folder='projects')

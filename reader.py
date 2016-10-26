@@ -7,7 +7,7 @@
 
 import csv
 import os
-from _names import firm, firm_int_fields, current, prev
+from column_names import firm, firm_int_fields, current, prev
 
 QUOTE_CHAR = '"'
 # http://www.gks.ru/opendata/storage/7708234640-bdboo2013/data-20150707t000000-structure-20131231t000000.rar
