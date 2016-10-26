@@ -14,20 +14,26 @@ def save(df, filebase, folder=None):
     df.to_excel(pathbase + ".xlsx", index = False)
 
 
-df = pd.read_csv("rosstat/all2013.csv", sep = ";")
-inn_df = pd.read_csv('config/inn.csv', delimiter = "\t", 
+#df = pd.read_csv("rosstat/all2013.csv", sep = ";")
+inn_df = pd.read_csv('inn.csv', delimiter = "\t", 
                      header = 0, names = ['inn','tag'])
 
-
-print("INN file has %d duplicated rows" % len(inn_df[inn_df.duplicated()]))
+inn_dups = inn_df[inn_df.duplicated()]
+print("INN configuration file has %d duplicated rows" % inn_dups.count().inn)
+print(inn_dups.inn)
 inn_df = inn_df.drop_duplicates()
 
-
 project_df = pd.merge(inn_df, df, on='inn', how='left')
+
 project_df['is_found'] = project_df.year.notnull()
+not_found_count = sum([not x for x in project_df['is_found']])
+print("%d INN(s) not found in database" % not_found_count)
+print(project_df[~project_df['is_found']].inn)
+
 project_df = project_df.sort_values(['is_found','okved1','2110'],
                                     ascending=[False, True, True])
 
+assert not project_df.duplicated().all() # no duplicate rows 
 save(project_df, "projects_compact", folder='projects')
 
 #
