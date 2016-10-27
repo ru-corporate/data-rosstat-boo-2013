@@ -1,17 +1,14 @@
 """
-
    Generate current and previous year CSV files based on source CSV.
    Lists forms 1 (balance), 2 (p&l) and 4(cash flow).
-
 """
-
 import csv
 import os
-from column_names import firm, firm_int_fields, current, prev
+from column_names import firm, firm_int_fields, current, prev, COLNAMES
 
 QUOTE_CHAR = '"'
-# http://www.gks.ru/opendata/storage/7708234640-bdboo2013/data-20150707t000000-structure-20131231t000000.rar
-SOURCE_CSV_PATH = os.path.join("rosstat", "G2013.csv")
+SOURCE_CSV_DIR = os.path.join("data", "rosstat")
+SOURCE_CSV_PATH = os.path.join(SOURCE_CSV_DIR, "G2013.csv")
 YEAR = 2013
 
 
@@ -51,7 +48,7 @@ mapper=dict(zip(data_labels,[x[0:-1] for x in data_labels]))
 
 OUTPUT_CSV_COLUMNS = new + firm + data_fields
 
-def lines_as_dicts(filename=CSV_PATH, cols=COLNAMES, year=YEAR, 
+def lines_as_dicts(filename=SOURCE_CSV_PATH, cols=COLNAMES, year=YEAR, 
                    yield_previous_year=False):
 
     unit_multipliers={'383':0.001, '384':1, '385':1000}
@@ -89,10 +86,8 @@ def lines_as_dicts(filename=CSV_PATH, cols=COLNAMES, year=YEAR,
         yield r
 
 
-def to_csv(gen, filename, folder="output", cols=OUTPUT_CSV_COLUMNS):
-
+def to_csv(gen, filename, folder=SOURCE_CSV_DIR, cols=OUTPUT_CSV_COLUMNS):
     path = os.path.join(folder, filename)
-    
     with open(path, 'w', encoding = "utf-8") as output_file:    
         dict_writer = csv.DictWriter(output_file, cols, delimiter=';', 
                                      lineterminator='\n', quoting=csv.QUOTE_MINIMAL)
@@ -101,9 +96,5 @@ def to_csv(gen, filename, folder="output", cols=OUTPUT_CSV_COLUMNS):
             dict_writer.writerow(d)
 
 if __name__=="__main__":
-    
-    to_csv(gen=lines_as_dicts(),
-           filename=os.path.join("rosstat","all2013.csv"))   
-    
-    to_csv(gen=lines_as_dicts(yield_previous_year=True),
-           filename=os.path.join("rosstat","all2012.csv"))
+    to_csv(gen=lines_as_dicts(), filename="all2013.csv")   
+    to_csv(gen=lines_as_dicts(yield_previous_year=True), filename="all2012.csv")
