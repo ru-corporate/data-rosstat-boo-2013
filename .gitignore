@@ -1,10 +1,8 @@
 *.csv
 *.pyc
 .cache/*
+*.rar
 
 # large xls file
 large_with_debt.xlsx
-
-# small csv file 
-!projects.csv
-!inn.csv
+!bln.rar
