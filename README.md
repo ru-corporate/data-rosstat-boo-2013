@@ -17,8 +17,6 @@
 [slicer.py](https://github.com/epogrebnyak/data-rosstat-boo-2013/blob/master/slicer.py):
   - merged.csv 
 
-[boo2013.py](https://github.com/epogrebnyak/data-rosstat-boo-2013/blob/master/boo2013.py)  
- 
  
 ###Сохранены:
 Папка [data](https://github.com/epogrebnyak/data-rosstat-boo-2013/tree/master/data), для скачивания нажать "View raw":
