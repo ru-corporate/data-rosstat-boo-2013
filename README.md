@@ -9,7 +9,7 @@
 Наборы данных
 =============
 
-###Гененрируются программно:
+###Гененрируются программно (Python 3.5/Anaconda):
 [reader.py](https://github.com/epogrebnyak/data-rosstat-boo-2013/blob/master/reader.py):
   - all2013.csv
   - all2012.csv
@@ -17,11 +17,12 @@
 [slicer.py](https://github.com/epogrebnyak/data-rosstat-boo-2013/blob/master/slicer.py):
   - merged.csv 
 
-все файлы: [boo2013.py](https://github.com/epogrebnyak/data-rosstat-boo-2013/blob/master/boo2013.py)  
-  
+[boo2013.py](https://github.com/epogrebnyak/data-rosstat-boo-2013/blob/master/boo2013.py)  
+ 
+ 
 ###Сохранены:
 Папка [data](https://github.com/epogrebnyak/data-rosstat-boo-2013/tree/master/data), для скачивания нажать "View raw":
-- main.csv
+- main.csv (```ix = (df.ta > 10000) | (df.sales> 12*5000)```)
 - bln.xls
 - bln.csv 
 
@@ -86,7 +87,8 @@
   - малые и средние предприятия  
 
 ### 3. Связь с макроданными
-Просуммировать макроэкономические переменные, сравнить с отчетными макропоказателями:
+####3.1 
+Просуммировать макроэкономические переменные по выбранному набору данных:
   - выпуск
   - произведенная добавленная стоимость (ВВП) 
   - инвестиции
@@ -94,6 +96,9 @@
   - основные фонды
   - кредиты, в том числе долгосрочные 
 
+####3.2. 
+Cравнить с отчетными макропоказателями, определить охват используемого набора данных. 
+  
 ### 4. Анализ по отдельным маропоказателям
 - Выпуск
   - Фондоотдача. На сколько может вырасти выпуск на незагруженных мощностях?
