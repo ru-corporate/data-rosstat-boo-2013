@@ -1,16 +1,85 @@
-"""
-   Generate current and previous year CSV files based on source CSV.
+""" 
+   Download + unpack files + generate current and previous year CSV files based on source CSV.
    Lists forms 1 (balance), 2 (p&l) and 4(cash flow).
 """
+
+import requests
+import os
+import platform
+import subprocess
+
 import csv
 import os
+
 from column_names import firm, firm_int_fields, current, prev, COLNAMES
 
 QUOTE_CHAR = '"'
-SOURCE_CSV_DIR = os.path.join("data", "rosstat")
+
+SOURCE_CSV_DIR = os.path.join("data")
 SOURCE_CSV_PATH = os.path.join(SOURCE_CSV_DIR, "G2013.csv")
 YEAR = 2013
+SOURCE_URL = "http://www.gks.ru/opendata/storage/7708234640-bdboo2013/data-20150707t000000-structure-20131231t000000.rar"
 
+IS_WINDOWS = (platform.system() == 'Windows')
+
+if IS_WINDOWS:
+    UNPACK_RAR_EXE = os.path.join('bin', 'unrar.exe')
+else:
+    UNPACK_RAR_EXE = 'unrar'
+
+# 
+# 
+#   Download and unrar
+#           
+#            
+    
+class Downloader():
+    
+    def __init__(self, url, folder=SOURCE_CSV_DIR):
+        self.url = url
+        filename = url.split('/')[-1]
+        self.path = os.path.join(folder, filename)     
+
+    @staticmethod    
+    def _download(url, path):
+        r = requests.get(url.strip(), stream=True)
+        with open(path, 'wb') as f:
+            for chunk in r.iter_content(chunk_size=1024): 
+                if chunk: # filter out keep-alive new chunks
+                    f.write(chunk)
+        return path
+
+    def download(self, overwrite=False):
+        if not os.path.exists(self.path) or overwrite:
+            print("Downloading:", self.url)
+            self._download(self.url, self.path)    
+            print("Saved as:", self.path)
+        else:
+            print("Already downloaded:", self.path)
+        return self
+    
+    @staticmethod
+    def _unrar(path, folder=SOURCE_CSV_DIR):        
+        subprocess.check_call([
+            UNPACK_RAR_EXE,
+            'e', path,
+            folder,
+            '-y'
+        ]) 
+
+    def unrar(self, overwrite = False):
+        if not os.path.exists(SOURCE_CSV_PATH) or overwrite:
+            self._unrar(self.path) 
+        else:
+            print("Already unpacked:", SOURCE_CSV_PATH)
+        
+   
+ 
+# 
+# 
+#   String transformation functions 
+#           
+#            
 
 OKVED_KEYS = ['okved1','okved2','okved3']
 
@@ -41,15 +110,23 @@ def get_csv_lines(filename=SOURCE_CSV_PATH, cols=COLNAMES):
                text_values = line.strip().split(";")
                yield dict(zip(cols,text_values))                
 
+# 
+# 
+#   Manipulate labels
+#           
+#            
+               
 data_fields = [x[0:-1] for x in current]
 data_labels = current+prev
 new = ['year'] + OKVED_KEYS + ['region', 'org', 'title']   
+# cut last digit off the code
 mapper=dict(zip(data_labels,[x[0:-1] for x in data_labels]))
 
 OUTPUT_CSV_COLUMNS = new + firm + data_fields
 
 def lines_as_dicts(filename=SOURCE_CSV_PATH, cols=COLNAMES, year=YEAR, 
                    yield_previous_year=False):
+    """Yield lines from file as dictionary."""
 
     unit_multipliers={'383':0.001, '384':1, '385':1000}
     
@@ -96,5 +173,6 @@ def to_csv(gen, filename, folder=SOURCE_CSV_DIR, cols=OUTPUT_CSV_COLUMNS):
             dict_writer.writerow(d)
 
 if __name__=="__main__":
+    Downloader(SOURCE_URL).download().unrar()
     to_csv(gen=lines_as_dicts(), filename="all2013.csv")   
     to_csv(gen=lines_as_dicts(yield_previous_year=True), filename="all2012.csv")

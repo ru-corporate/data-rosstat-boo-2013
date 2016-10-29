@@ -317,13 +317,12 @@ firm = firm_attributes
 #does nor include ['name', 'okved']
 firm_int_fields = ['okpo', 'okopf', 'okfs', 'inn', 'unit', 'report_type']
 
-
-
-
-
-
 #
 #   Create files with fewer columns
+#
+#
+#   Variable names as seen at 
+#   http://info.avtovaz.ru/files/avtovaz_ras_12m_2013.pdf
 #
 
 rename =  OrderedDict([
@@ -400,7 +399,7 @@ rename =  OrderedDict([
  ('2520', '2520'),
  ('2500', '2500'),
 
- ('4110', 'cash_oper_inflow'),        # поступления вcего 
+ ('4110', 'cash_oper_inflow'),        # вcего операционные поступления
  ('4111', 'cash_oper_inflow_sales'),  # поступления от продаж
  ('4112', '4112'),
  ('4113', '4113'),
@@ -420,7 +419,7 @@ rename =  OrderedDict([
  ('4214', '4214'),
  ('4219', '4219'),
  ('4220', '4220'),
- ('4221', '4221'),
+ ('4221', 'cash_investment_of'), # создание внеоборотных активов
  ('4222', '4222'),
  ('4223', '4223'),
  ('4224', '4224'),
