@@ -16,7 +16,7 @@ assert (vaz.sales == 175152000).all()
 ix = (df.ta > 10000) | (df.sales> 12*5000)
 subset = df[ix]
 # все исходные данные в тыс. рублей, преобразрованные - млн руб.
-subset[data_cols] = (subset[data_cols] / 1000).round(1)  
+subset[data_cols] = (subset[data_cols] / 1000).round(1)  # todo - do this earlier
 subset.to_csv("data/main.csv", sep = ";", encoding = "utf-8")
 
 # предприятия с выручкой свыше 1 млрд. руб. 
