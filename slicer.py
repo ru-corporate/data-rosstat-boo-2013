@@ -32,19 +32,26 @@ def _extract_fileds_from_compact_df(compact_df_prev, fields = ['sales', 'of']):
     return df2 
 
 def get_prev_compact_df():
-    df_prev = pd.read_csv("rosstat/all2012.csv", sep = ";")
+    df_prev = pd.read_csv("data/all2012.csv", sep = ";")
     compact_df_prev = shorten(df_prev) 
     return _extract_fileds_from_compact_df(compact_df_prev, fields = ['sales', 'of'])
-    
-if __name__ == "__main__":
-    #df = pd.read_csv("rosstat/all2013.csv", sep = ";")
-    #renamed_df = shorten(df)  
-    #print("1")
+
+def make_main():
+    df = pd.read_csv("data/all2013.csv", sep = ";")
+    renamed_df = shorten(df)  
     
     # add fields from previous year
     df2 = get_prev_compact_df()
     merged_df = renamed_df.merge(df2, on='inn')
-    #print("2")        
     
     merged_df.to_csv("data/merged.csv", sep = ";", index = False, encoding = "utf-8")
-    #save(merged_df, "renamed", folder='data')
+    
+if __name__ == "__main__":
+    df = pd.read_csv("data/all2013.csv", sep = ";")
+    renamed_df = shorten(df)  
+    
+    # add fields from previous year
+    df2 = get_prev_compact_df()
+    merged_df = renamed_df.merge(df2, on='inn')
+    
+    merged_df.to_csv("data/merged.csv", sep = ";", index = False, encoding = "utf-8")
