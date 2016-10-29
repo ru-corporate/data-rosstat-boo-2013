@@ -10,14 +10,20 @@
 =============
 
 ###Гененрируются программно:
-- all2013.csv
-- all2012.csv
-- merged.csv 
+[reader.py](https://github.com/epogrebnyak/data-rosstat-boo-2013/blob/master/reader.py):
+  - all2013.csv
+  - all2012.csv
 
+[slicer.py](https://github.com/epogrebnyak/data-rosstat-boo-2013/blob/master/slicer.py):
+  - merged.csv 
+
+все файлы: [boo2013.py](https://github.com/epogrebnyak/data-rosstat-boo-2013/blob/master/boo2013.py)  
+  
 ###Сохранены:
+Папка [data](https://github.com/epogrebnyak/data-rosstat-boo-2013/tree/master/data), для скачивания нажать "View raw":
 - main.csv
 - bln.xls
-- bln.csv
+- bln.csv 
 
 Переменные
 ==========
@@ -118,4 +124,4 @@
 - Малые предприятия
 - Неравномерность и концентрация в отрасли
   - Неравномерность выборки (пример, суммарный финансовый результат - как складывается) 
-- Уровень концентарции в отрасли, чем объясняется (капиталоемкость?)
+  - Уровень концентарции в отрасли, чем объясняется (капиталоемкость?)
