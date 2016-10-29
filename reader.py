@@ -70,9 +70,7 @@ class Downloader():
         if not os.path.exists(SOURCE_CSV_PATH) or overwrite:
             self._unrar(self.path) 
         else:
-            print("Already unpacked:", SOURCE_CSV_PATH)
-        
-   
+            print("Already unpacked:", SOURCE_CSV_PATH)    
  
 # 
 # 
@@ -125,7 +123,8 @@ OUTPUT_CSV_COLUMNS = new + firm + data_fields
 
 def lines_as_dicts(filename=SOURCE_CSV_PATH, cols=COLNAMES, year=YEAR, 
                    yield_previous_year=False):
-    """Yield lines from file as dictionary."""
+                       
+    """Yield lines from csv file as dictionary."""
 
     unit_multipliers={'383':0.001, '384':1, '385':1000}
     
@@ -170,6 +169,8 @@ def to_csv(gen, filename, folder=SOURCE_CSV_DIR, cols=OUTPUT_CSV_COLUMNS):
         dict_writer.writeheader()
         for d in gen:            
             dict_writer.writerow(d)
+            
+
 
 if __name__=="__main__":
     Downloader(SOURCE_URL).download().unrar()

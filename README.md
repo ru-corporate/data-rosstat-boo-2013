@@ -10,18 +10,26 @@
 =============
 
 ###Гененрируются программно (Python 3.5/Anaconda):
-[reader.py](https://github.com/epogrebnyak/data-rosstat-boo-2013/blob/master/reader.py):
+[reader.py](https://github.com/epogrebnyak/data-rosstat-boo-2013/blob/master/reader.py) - исходные наборы данных, 
+соотвестствующие файлу Росстата (265 показателей * 1,7 млн строк):
   - all2013.csv
   - all2012.csv
 
-[slicer.py](https://github.com/epogrebnyak/data-rosstat-boo-2013/blob/master/slicer.py):
+[slicer.py](https://github.com/epogrebnyak/data-rosstat-boo-2013/blob/master/slicer.py) - файл с ограниченным 
+набором показателей (27 показаталей * 1,7 млн строк):
   - merged.csv 
 
  
 ###Сохранены:
-Папка [data](https://github.com/epogrebnyak/data-rosstat-boo-2013/tree/master/data), для скачивания нажать "View raw":
-- main.csv (```ix = (df.ta > 10000) | (df.sales> 12*5000)```)
-- bln.xls
+Папка [data](https://github.com/epogrebnyak/data-rosstat-boo-2013/tree/master/data), для скачивания нажать "View raw"
+
+Предприятия с выручкой более 5 млн руб. в месяц или основными фондами более 10 млн руб. (27 показателей * 427 тыс. строк):
+- main.csv  
+- main.rar - (заархивированный main.csv)
+
+
+Предприятия с выручкой более 1 млрд. руб. в год (27 показателей * 15,5 тыс. строк):
+- bln.xls 
 - bln.csv 
 
 Переменные

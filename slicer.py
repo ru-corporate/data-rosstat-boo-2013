@@ -2,7 +2,6 @@
 """Create reduced datasets based on *all2013.csv* and *inn.csv*"""
 
 import pandas as pd
-import os
 
 from column_names import colname_to_varname_dict as SUB
 NON_MONETARY_COLUMNS = ['inn', 'year', 'okved1', 'region', 'title']
