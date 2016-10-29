@@ -7,9 +7,8 @@ import requests
 import os
 import platform
 import subprocess
-
 import csv
-import os
+
 
 from column_names import firm, firm_int_fields, current, prev, COLNAMES
 
