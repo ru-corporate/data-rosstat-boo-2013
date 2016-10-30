@@ -16,7 +16,7 @@
   - all2012.csv
 
 [slicer.py](https://github.com/epogrebnyak/data-rosstat-boo-2013/blob/master/slicer.py) - файл с ограниченным 
-набором показателей (27 показаталей * 1,7 млн строк):
+набором показателей (27 показателей * 1,7 млн строк):
   - merged.csv 
 
  
