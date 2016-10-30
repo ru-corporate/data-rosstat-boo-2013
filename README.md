@@ -18,19 +18,19 @@
 [slicer.py](https://github.com/epogrebnyak/data-rosstat-boo-2013/blob/master/slicer.py) - файл с ограниченным 
 набором показателей (27 показателей * 1,7 млн строк):
   - merged.csv 
-
  
 ###Сохранены:
-Папка [data](https://github.com/epogrebnyak/data-rosstat-boo-2013/tree/master/data), для скачивания нажать "View raw"
-
 Предприятия с выручкой более 5 млн руб. в месяц или основными фондами более 10 млн руб. (27 показателей * 427 тыс. строк):
-- main.csv  
-- main.rar - (заархивированный main.csv)
-
+- [main.csv][data]  
+- [main.rar][data] - заархивированный main.csv
 
 Предприятия с выручкой более 1 млрд. руб. в год (27 показателей * 15,5 тыс. строк):
-- bln.xls 
-- bln.csv 
+- [bln.xls][data] 
+- [bln.csv][data] 
+
+[data]: https://github.com/epogrebnyak/data-rosstat-boo-2013/tree/master/data
+
+Примечание: для скачивания файла необходимо нажать "View Raw".
 
 Переменные
 ==========
