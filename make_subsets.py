@@ -5,7 +5,7 @@ from slicer import NON_MONETARY_COLUMNS
 
 # читаем данные
 df = pd.read_csv('data/merged.csv',sep=";") 
-df.set_index('inn')
+#df.set_index('inn')
 data_cols = [x for x in df.columns.tolist() if x not in NON_MONETARY_COLUMNS]
 
 # проверка АвтоВАЗ

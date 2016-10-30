@@ -1,6 +1,9 @@
-""" 
+"""
+
    Download + unpack files + generate current and previous year CSV files based on source CSV.
    Lists forms 1 (balance), 2 (p&l) and 4(cash flow).
+
+   
 """
 
 import requests
@@ -120,6 +123,12 @@ new = ['year'] + OKVED_KEYS + ['region', 'org', 'title']
 mapper=dict(zip(data_labels,[x[0:-1] for x in data_labels]))
 
 OUTPUT_CSV_COLUMNS = new + firm + data_fields
+
+# 
+# 
+#   Read csv
+#           
+# 
 
 def lines_as_dicts(filename=SOURCE_CSV_PATH, cols=COLNAMES, year=YEAR, 
                    yield_previous_year=False):
