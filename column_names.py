@@ -1,4 +1,6 @@
 from collections import OrderedDict
+import io
+import csv
 
 #
 # Column names from:
@@ -271,16 +273,23 @@ DOC_NAMES = """     1, Наименование                                 
    264, 63003                                             , N,   15
    265, 64003                                             , N,   15"""
 
-   
-def to_list(x):
-    return [str(a).strip() for a in x.split(",")]
-    
-_ = [to_list(x) for x in DOC_NAMES.split("\n")]
-COLNAMES = [x[1] for x in _]
+
+def yeild_colnames():
+    with io.StringIO(DOC_NAMES) as csvfile:
+        spamreader = csv.reader(csvfile, delimiter=",")
+        for row in spamreader:
+            yield(row[1].strip())
+COLNAMES = list(yeild_colnames())
+
 
 # ['Наименование', 'ОКПО', 'ОКОПФ', 'ОКФС', 'ОКВЭД', 'ИНН', 'Код единицы измерения', 'Тип отчета']
-# 'okfs' - формы собственности http://ip-nalog.ru/kody-statistiki/okfs.html
-firm_attributes = ['name', 'okpo', 'okopf', 'okfs', 'okved', 'inn', 'unit', 'report_type']
+# 'okfs' - формы собственности 
+firm_attributes      = ['name', 'okpo', 'okopf', 'okfs', 'okved', 'inn', 'unit', 'report_type' ]
+firm_attribute_types = [   str,    int,     int,    int,     str,   str,    int,           int ]
+firm_attr = OrderedDict(zip(firm_attributes,firm_attribute_types))
+ 
+firm_int_fields = [        'okpo', 'okopf', 'okfs',          'inn', 'unit', 'report_type']
+
 COLNAMES[0:8] = firm_attributes 
 assert COLNAMES[7] == 'report_type'
 assert COLNAMES[8] == '11103'
@@ -294,28 +303,25 @@ opu = [x for x in COLNAMES if x.startswith("2")]
 # отчет о движении денежных средств
 cf  = [x for x in COLNAMES if x.startswith("4")] 
 
-# отчет о движении денежных средств
+# отчет о движении капитала
 dk  = [x for x in COLNAMES if x.startswith("3")] 
 
-# отчет о движении денежных средств
+# отчет о целевых расходах
 tsel  = [x for x in COLNAMES if x.startswith("6")] 
-
-
-assert ap+opu+dk+cf+tsel == COLNAMES[8:]
-assert firm_attributes+ap+opu+dk+cf+tsel == COLNAMES
-
 
 cur_year_data_labels  = [x for x in ap+opu+cf if x.endswith("3")]
 prev_year_data_labels = [x for x in ap+opu+cf if x.endswith("4")]
-assert sorted(firm_attributes + cur_year_data_labels + prev_year_data_labels+dk+tsel) == sorted(COLNAMES) 
-
-
 current = cur_year_data_labels
 prev = prev_year_data_labels
 firm = firm_attributes
 
-#does nor include ['name', 'okved']
-firm_int_fields = ['okpo', 'okopf', 'okfs', 'inn', 'unit', 'report_type']
+assert sorted(firm_attributes + cur_year_data_labels + prev_year_data_labels+dk+tsel) == sorted(COLNAMES) 
+assert ap+opu+dk+cf+tsel == COLNAMES[8:]
+assert firm_attributes+ap+opu+dk+cf+tsel == COLNAMES
+
+
+
+
 
 #
 #   Create files with fewer columns
