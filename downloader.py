@@ -6,22 +6,15 @@
 
 import requests
 import os
-import platform
 import subprocess
 
-SOURCE_CSV_DIR = os.path.join("data")
-SOURCE_CSV_PATH = os.path.join(SOURCE_CSV_DIR, "G2013.csv")
-SOURCE_URL = "http://www.gks.ru/opendata/storage/7708234640-bdboo2013/data-20150707t000000-structure-20131231t000000.rar"
+from config import SOURCE_URL, DATA_DIR, SOURCE_CSV_PATH 
+from config import UNPACK_RAR_EXE
 
-IS_WINDOWS = (platform.system() == 'Windows')
-if IS_WINDOWS:
-    UNPACK_RAR_EXE = os.path.join('bin', 'unrar.exe')
-else:
-    UNPACK_RAR_EXE = 'unrar'
 
 class Downloader():
     
-    def __init__(self, url, destination_folder=SOURCE_CSV_DIR):
+    def __init__(self, url=SOURCE_URL, destination_folder=DATA_DIR):
         self.url = url
         filename = url.split('/')[-1]
         self.path = os.path.join(destination_folder, filename)     
@@ -45,7 +38,7 @@ class Downloader():
         return self
     
     @staticmethod
-    def _unrar(path, folder=SOURCE_CSV_DIR):        
+    def _unrar(path, folder):        
         subprocess.check_call([
             UNPACK_RAR_EXE,
             'e', path,
@@ -55,10 +48,10 @@ class Downloader():
 
     def unrar(self, overwrite = False):
         if not os.path.exists(SOURCE_CSV_PATH) or overwrite:
-            self._unrar(self.path) 
+            self._unrar(self.path, DATA_DIR) 
         else:
             print("Already unpacked:", SOURCE_CSV_PATH) 
+        return SOURCE_CSV_PATH
             
 if __name__ == "__main__":
-
-    Downloader(SOURCE_URL).download().unrar()
+    Downloader().download().unrar()

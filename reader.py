@@ -1,129 +1,90 @@
 """
-
-   Read source CSV file - forms 1(balance), 2(p&l) and 4(cash flow).
+   Read source CSV file and adjust numeric units.
    
 """
 
-import csv
+import pandas as pd
 
+from downloader import Downloader
+from config import TARGET_CSV_PATH
 from column_names import COLNAMES  
-from column_names import ap, opu, cf
-from downloader import SOURCE_CSV_DIR, SOURCE_CSV_PATH
 
-YEAR = 2013
-QUOTE_CHAR = '"'
-OKVED_KEYS = ['okved1','okved2','okved3']
+# check if file is downloaded 
+SOURCE_CSV_PATH = Downloader().download().unrar()
 
-def get_csv_lines(filename=SOURCE_CSV_PATH, cols=COLNAMES):
-    """Read CSV file"""
-    with open(filename) as csvfile:
-        spamreader = csv.reader(csvfile, delimiter=";")
-        for row in spamreader:
-            yield dict(zip(cols,row))    
 
-# 
-# 
-#   String transformation functions 
-#           
-#            
+numeric_columns = COLNAMES[8:]  # ['11103', '11104', '11203'...
+string_columns  = COLNAMES[0:8] # ['name', 'okpo', 'okopf', 'okfs', 'okved', 'inn', 'unit', 'report_type' ]
 
-def get_okved_dict(code_string):
-    """Extract 3 levels of okved code from code_string line 80.10.02"""
-    def _okved_tuple(code_string): 
-        codes = [int(x) for x in str(code_string).split(".")]
-        return codes + [None] * (3-len(codes))        
-    return dict(zip(OKVED_KEYS, _okved_tuple(code_string)))
 
-def dequote(line):
-    """Split company name to organisation and tiile"""
-    parts = line.split(QUOTE_CHAR)
-    org_type = parts[0].strip()
-    new_line = QUOTE_CHAR.join(parts[1:-1])
-    if new_line.count(QUOTE_CHAR)==1:
-        new_line = new_line + QUOTE_CHAR
-    if not new_line:
-       new_line = line         
-    return org_type, new_line.strip()    
+cre = dict(filepath_or_buffer=SOURCE_CSV_PATH, 
+           sep=';', 
+           encoding="cp1251",
+           names=COLNAMES, 
+           dtype={'inn':str})
+
+
+# write headers to csv file 
+pd.DataFrame(columns=COLNAMES).to_csv(TARGET_CSV_PATH, encoding='utf-8')
+
+chunks = pd.read_csv(**cre,chunksize=100000)
+for i, df in enumerate(chunks):
+
+    # uncomment when debugging
+    #if i > 0: break
+   
+    # delete last line with nulls
+    # Note: I was trying to get rid of this line with 'skipfooter=1',
+    #       but then I was getting a conflict with 'dtype' specification
+    if any(df.iloc[-1:].isnull()):
+       df=df[:-1]
     
-#   Manipulate labels
-cur_year_data_labels  = [x for x in ap+opu+cf if x.endswith("3")]
-prev_year_data_labels = [x for x in ap+opu+cf if x.endswith("4")]
-# cut last digit off the code
-mapper=dict(zip(data_labels,[x[0:-1] for x in ap+opu+cf]))
-numeric_fields = ap+opu+cf  
-unit_multipliers={'383':0.001, '384':1, '385':1000}
-
-def adjust_numeric_values(d):
-    # adjust units - standard unit is 384 (thousands)
-    # 383 is rubles, must mult by 10^-3, 
-    # 385 is mln rubles, must multiply by 10**3     
-    m = unit_multipliers[d['unit']]
-    d.update((k, m*int(d[k])) for k in numeric_fields)
-    return d
-
-assert {'unit':'383'}.update(dict(zip(numeric_fields, 1000)))['21103'] == 1 
+    # adjust numeric units
+    # we need to multiply numeric values in several rows by a factor of .001 or 1000
+    multipliers={383:0.001,  385:1000}
+    for k, m in multipliers.items(): 
+        index = (df.unit==int(k)) | (df.unit==str(k)) 
+        df.loc[index,numeric_columns] = df.loc[index,numeric_columns].multiply(m).round(0)
     
-    
-def get_company_attributes(d):            
-    # split okved to 3 numbers            
-    result_dict = get_okved_dict(d['okved'])       
-    # add region by INN
-    result_dict['region'] = int(str(d['inn'])[0:2])})        
-    # extract org type and title   
-    org, title = dequote(d['name'])
-    result_dict.update({'org':org, 'title':title})    
-    #see if inn must be turned to int
-    result_dict['inn'] = d['inn']    
-    # int fields
-    result_dict.update({k:int(d(k)) for k in ['okpo', 'okopf', 'okfs', 'unit', 'report_type']})    
-    return result_dict    
-
-    
-def get_codes(d, labels):
-    d.update((mapper[k],d[k]) for k in dict.keys())
-    return {k:v for k, v in d.items() if k in cols}
-        
-def refine(d):
-    d = adjust_numeric_values(d)
-    ky = get_codes(d, cur_year_data_labels).update(YEAR)
-    kp = get_codes(d, prev_year_data_labels).update(YEAR-1)
-    return(YEAR)
-    
-def lines_as_dicts(filename=SOURCE_CSV_PATH, cols=COLNAMES, year=YEAR, 
-                   yield_previous_year=False):
-                       
-    """Yield lines from CSV file as dictionary."""
-
-    for d in get_csv_lines(filename, cols):       
-        r = {'year':year}        
-        
-    
-            
+    df.to_csv(TARGET_CSV_PATH, mode='a', encoding='utf-8', header = False)
 
 
+# Problem 1: adjusting numeric units in lines 42-46 
+#     (a) seems very slow, 
+#     (b) I'm using iloc, but still getting a SettingWithCopyWarning: 
+#         A value is trying to be set on a copy of a slice from a DataFrame.
+#         Try using .loc[row_indexer,col_indexer] = value instead  
 
-def to_csv(gen, filename, folder=SOURCE_CSV_DIR, cols=OUTPUT_CSV_COLUMNS):
-    path = os.path.join(folder, filename)
-    with open(path, 'w', encoding = "utf-8") as output_file:    
-        dict_writer = csv.DictWriter(output_file, cols, delimiter=';', 
-                                     lineterminator='\n', quoting=csv.QUOTE_MINIMAL)
-        dict_writer.writeheader()
-        for d in gen:            
-            dict_writer.writerow(d)
-            `   0123
-            
-             
-#data_fields = [x[0:-1] for x in current]
-#data_labels = current+prev
+# Problem 2: 
+#     for numeric values the data type is integer, not float
+#     in my source file I have to last line of NA values, so I cannot use dtype=int, nor skipfooter=1 
+#     in a csv file I want to keep all numeric columns ('numeric_columns') as int type
 
 
-new = ['year'] + OKVED_KEYS + ['region', 'org', 'title']   
-firm = ['okpo', 'okopf', 'okfs', 'unit', 'report_type']
-OUTPUT_CSV_COLUMNS = new + firm + data_fields
+# Below is not todo.
 
-            
-            
 
-if __name__=="__main__":
-    to_csv(gen=lines_as_dicts(), filename="all2013.csv")   
-    to_csv(gen=lines_as_dicts(yield_previous_year=True), filename="all2012.csv")
+#ff = pd.read_csv(OUTPUT)
+
+## 
+##   String transformation functions 
+##           
+
+#def get_okved_dict(code_string):
+#    """Extract 3 levels of okved code from code_string line 80.10.02"""
+#    def _okved_tuple(code_string): 
+#        codes = [int(x) for x in str(code_string).split(".")]
+#        return codes + [None] * (3-len(codes))        
+#    return dict(zip(OKVED_KEYS, _okved_tuple(code_string)))
+#
+#def dequote(line):
+#    """Split company name to organisation and tiile"""
+#    parts = line.split(QUOTE_CHAR)
+#    org_type = parts[0].strip()
+#    new_line = QUOTE_CHAR.join(parts[1:-1])
+#    if new_line.count(QUOTE_CHAR)==1:
+#        new_line = new_line + QUOTE_CHAR
+#    if not new_line:
+#       new_line = line         
+#    return org_type, new_line.strip()    
+#    
