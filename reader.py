@@ -16,16 +16,15 @@ SOURCE_CSV_PATH = Downloader().download().unrar()
 numeric_columns = COLNAMES[8:]  # ['11103', '11104', '11203'...
 string_columns  = COLNAMES[0:8] # ['name', 'okpo', 'okopf', 'okfs', 'okved', 'inn', 'unit', 'report_type' ]
 
+# write headers to csv file 
+pd.DataFrame(columns=COLNAMES).to_csv(TARGET_CSV_PATH, encoding='utf-8')
 
+# parameters of source csv file import
 cre = dict(filepath_or_buffer=SOURCE_CSV_PATH, 
            sep=';', 
            encoding="cp1251",
            names=COLNAMES, 
            dtype={'inn':str})
-
-
-# write headers to csv file 
-pd.DataFrame(columns=COLNAMES).to_csv(TARGET_CSV_PATH, encoding='utf-8')
 
 chunks = pd.read_csv(**cre,chunksize=100000)
 for i, df in enumerate(chunks):
@@ -59,6 +58,8 @@ for i, df in enumerate(chunks):
 #     for numeric values the data type is integer, not float
 #     in my source file I have to last line of NA values, so I cannot use dtype=int, nor skipfooter=1 
 #     in a csv file I want to keep all numeric columns ('numeric_columns') as int type
+#     the resulting file TARGET_CSV_PATH is about 2 time bigger than original SOURCE_CSV_PATH file,
+#     which is very upsetting 
 
 
 # Below is not todo.
