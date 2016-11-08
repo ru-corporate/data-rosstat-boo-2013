@@ -15,16 +15,12 @@ LOCATIONS = {
         , csv_file="G2013.csv")
 }
 
-
 class RemoteDataset():   
         
     def get_rar_local_path(self):
         filename = self.url.split('/')[-1]
         return os.path.join(RAR_DIR, filename)
 
-    def get_modified_csv_local_path(self):
-        self.csv_path
-    
     def __init__(self, year):
         self.url = LOCATIONS[year]['url']
         # RAR filename 
@@ -70,13 +66,11 @@ class RemoteDataset():
             print("Already unpacked:", self.source_csv_path)
         else:         
             self._unrar(self.rar_path, RAR_DIR) 
-        return self
+        return self.source_csv_path
         
-    def get_csv_filenames(self):
-        return self.source_csv_path, self.modified_csv_path
+    def get_new_csv_filename(self):
+        return self.modified_csv_path
             
-if __name__ == "__main__":
-    rd = RemoteDataset(2013).download().unrar()
-    raw_data_csv_path, clean_data_csv_path = rd.get_csv_filenames()   
-    assert raw_data_csv_path == 'data\\G2013.csv'
-    assert clean_data_csv_path == 'data\\G2013_ready.csv'
+if __name__ == "__main__":   
+    assert RemoteDataset(2013).download().unrar() == 'data\\G2013.csv'
+    assert RemoteDataset(2013).get_new_csv_filename() == 'data\\G2013_ready.csv'
