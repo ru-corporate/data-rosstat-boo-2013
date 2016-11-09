@@ -17,10 +17,6 @@ LOCATIONS = {
 
 class RemoteDataset():   
         
-    def get_rar_local_path(self):
-        filename = self.url.split('/')[-1]
-        return os.path.join(RAR_DIR, filename)
-
     def __init__(self, year):
         self.url = LOCATIONS[year]['url']
         # RAR filename 

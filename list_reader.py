@@ -2,33 +2,32 @@
 """Read source CSV file and adjust numeric units."""
 
 import csv
-
 from remote import RemoteDataset
-from column_names import COLNAMES  
+
+from column_names import COLNAMES
 
 EMPTY = ''    
 QUOTE_CHAR = '"' 
 
-# check if file is downloaded and get filenames
 YEAR = 2013
-CSV_FILENAME = RemoteDataset(YEAR).download().unrar()
-PARSED_CSV_FILENAME = RemoteDataset(YEAR).get_new_csv_filename()
+CSV_FILENAME = RemoteDataset(YEAR).source_csv_path
 
-# locate variable positions in csv row
-POS = {k:COLNAMES.index(k) for k in ['unit', 'okved', 'inn', 'name']}
-POS.update(dict(num_start= COLNAMES.index('11103')))
-assert POS == {'okved': 4, 'inn': 5, 'unit': 6, 'name': 0, 'num_start': 8}
-
-# numeric_data_start_index
-K = COLNAMES.index('11103')
-CHAR_COLUMNS = COLNAMES[0:K] 
-CHAR_COLUMNS_SHORT = [x for x in CHAR_COLUMNS if x != 'name']
+def get_specs(cols):
+    # numeric data start index
+    K = cols.index('11103')
+    
+    # text columns
+    CHAR_COLUMNS = dict(original=cols[0:K], modified=[x for x in cols[0:K] if x != 'name']) 
+    return K, CHAR_COLUMNS
+    
+K, CHAR_COLUMNS = get_specs(COLNAMES)
 
 def get_csv_lines(filename=CSV_FILENAME):
     with open(filename, 'r') as csvfile:
         spamreader = csv.reader(csvfile, delimiter=';') # encoding="cp1251"
         for row in spamreader:
-           yield row           
+           if len(row)>1: #avoids reading last rows 
+                yield row           
 
 def csv_block(count, skip=0, filename=CSV_FILENAME):
     k = 0 
@@ -40,6 +39,26 @@ def csv_block(count, skip=0, filename=CSV_FILENAME):
             k+=1
         else:
             break
+
+def last_rows():
+    for x in csv_block(100000, skip=1742400):
+        yield parsed(x)
+
+def parsed_rows(n=None, skip=0, filename=CSV_FILENAME):     
+    chunk=10000
+    if n:
+        gen = csv_block(n, skip, filename)
+    else:
+        gen = get_csv_lines(filename)
+        
+    i=1; k=0
+    for r in gen:
+        yield parse_row(r)
+        i+=1
+        if i==chunk:
+            i=0; k+=1
+            print(chunk*k) 
+
             
 def adjust_units(unit, num_vec):
     if unit == '384': 
@@ -73,13 +92,11 @@ def dequote(line):
        title = line         
     return [org, title.strip()]    
 
-def split_row(vec, k=K, cols=CHAR_COLUMNS):
-    
+def split_row(vec, k=K, cols=CHAR_COLUMNS['original']):    
     char_dict = dict(zip(cols,vec[0:k]))
     return char_dict, vec[k:]
     
-def parse_row(vec, year=YEAR, cols=CHAR_COLUMNS_SHORT):
-    
+def parse_row(vec, year=YEAR, cols=CHAR_COLUMNS['modified']):    
     # split vector
     vars, num_vec = split_row(vec)      
     
@@ -100,21 +117,7 @@ def parse_row(vec, year=YEAR, cols=CHAR_COLUMNS_SHORT):
     
 def parse_colnames(col=COLNAMES):
     return ['year', 'org', 'title', 'region', 'ok1', 'ok2', 'ok3'] + [x for x in col if x!='name']
-    
-    
-def parsed_rows(n=None,chunk=10000):     
-    if n:
-        gen = csv_block(n)
-    else:
-        gen = get_csv_lines()
-        
-    i=1; k=0
-    for r in gen:
-        yield parse_row(r)
-        i+=1
-        if i==chunk:
-            i=0; k+=1
-            print(chunk*k) 
+
 
 def to_csv(path, gen, cols):    
     with open(path, 'w', encoding = "utf-8") as file:
@@ -122,10 +125,15 @@ def to_csv(path, gen, cols):
                               quoting=csv.QUOTE_MINIMAL)
         writer.writerow(cols)
         writer.writerows(gen)
+    print("Saved file:", path)    
         
-        
+def update(year):
+    input_csv = RemoteDataset(year).download().unrar()
+    output_csv = RemoteDataset(year).get_new_csv_filename()
+    # colnames, K      
+    gen = parsed_rows(filename=input_csv)
+    cols = parse_colnames()    
+    to_csv(output_csv, gen, cols)
+    
 if __name__=="__main__":
-    cols = parse_colnames()
-    gen = parsed_rows()     
-    to_csv(PARSED_CSV_FILENAME, gen, cols)
-    print("Saved file:", PARSED_CSV_FILENAME)
+    update(2013)
