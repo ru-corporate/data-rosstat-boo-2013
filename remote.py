@@ -66,4 +66,3 @@ class RemoteDataset():
         
     def get_new_csv_filename(self):
         return self.modified_csv_path
-            

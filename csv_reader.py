@@ -72,7 +72,6 @@ class Reader():
         
 if __name__=="__main__":
     R = Reader(2013)
-    a = next(R.parsed_rows(1))
-    assert len(a)>200 
     R._demo()
+    #R.save()
     
