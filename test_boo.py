@@ -44,7 +44,8 @@ def test_row_parser():
     p = RowParser(2013)
     assert p.adjust_row(v) == LINE1_2013_PARSED
     
+#------------------------------------------------------------------------------------
     
-from csv_reader import Reader
+from reader import DatasetReader
 def test_reader():
-    assert Reader(2013).peep(skip=0) == LINE1_2013_PARSED   
+    assert DatasetReader(2013).peep(skip=0) == LINE1_2013_PARSED   

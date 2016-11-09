@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Use column specification to parse rows."""
 
-from column_names import COLNAMES
+from column_names import COLNAMES_2013
 
 EMPTY = ''    
 QUOTE_CHAR = '"' 
@@ -11,8 +11,8 @@ class RowParser():
     def __init__(self, year=2013):
         self.year = year
         if year == 2013:
-            incoming_columns = COLNAMES
-            self.k = incoming_columns.index('11103')
+            incoming_columns = COLNAMES_2013
+            self.k = incoming_columns.index('1110')
             self.char_cols = incoming_columns[0:self.k]           
             self.new_char_cols = [x for x in incoming_columns[0:self.k] if x != 'name']
             self.columns = ['year', 'org', 'title', 'region', 'ok1', 'ok2', 'ok3'] + \

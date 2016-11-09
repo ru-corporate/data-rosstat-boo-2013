@@ -7,7 +7,7 @@ from row_parser import RowParser
 
 def get_csv_lines(filename):
     with open(filename, 'r') as csvfile:
-        spamreader = csv.reader(csvfile, delimiter=';') # may use encoding="cp1251"
+        spamreader = csv.reader(csvfile, delimiter=';') # may need to use encoding="cp1251"
         for row in spamreader:
            if len(row)>1: #avoid reading last empty row 
                 yield row           
@@ -32,10 +32,10 @@ def to_csv(path, gen, cols):
     print("Saved file:", path)    
 
     
-class Reader():
+class DatasetReader():
     
     chunk = 10000
-    TEST_CSV = "sample.txt"
+    test_csv = "sample.txt"
     
     def __init__(self, year=2013):
         self.input_csv = RemoteDataset(year).download().unrar()
@@ -63,15 +63,15 @@ class Reader():
         gen = self.parsed_rows()
         to_csv(self.output_csv, gen, self.columns)
     
-    def _demo(self):
+    def demo(self):
         gen = self.parsed_rows(10, skip=50)        
-        to_csv(self.TEST_CSV, gen, self.columns)
+        to_csv(self.test_csv, gen, self.columns)
         
     def peep(self, skip=0):
         return next(self.parsed_rows(1,skip))
         
 if __name__=="__main__":
-    R = Reader(2013)
-    R._demo()
+    R = DatasetReader(2013)
+    R.demo()
     #R.save()
     
