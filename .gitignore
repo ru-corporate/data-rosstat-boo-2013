@@ -5,3 +5,4 @@
 .cache/*
 *.rar
 !main.rar
+sample.txt
