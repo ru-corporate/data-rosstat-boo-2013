@@ -67,6 +67,3 @@ class RemoteDataset():
     def get_new_csv_filename(self):
         return self.modified_csv_path
             
-if __name__ == "__main__":   
-    assert RemoteDataset(2013).download().unrar() == 'data\\G2013.csv'
-    assert RemoteDataset(2013).get_new_csv_filename() == 'data\\G2013_ready.csv'
