@@ -37,6 +37,7 @@ for i, df in enumerate(chunks):
     #       but then I was getting a conflict with 'dtype' specification
     if any(df.iloc[-1:].isnull()):
        df=df[:-1]
+       # better use drop
     
     # adjust numeric units
     # we need to multiply numeric values in several rows by a factor of .001 or 1000
