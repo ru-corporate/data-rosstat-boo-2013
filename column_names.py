@@ -595,4 +595,10 @@ rename_dict = OrderedDict([
 #             ('6400', '6400')
              ])
  
-COLNAMES_2013
+def switcher(x, renamer=rename_dict):
+    if x in renamer.keys():
+        return renamer[x]
+    else:
+        return x
+        
+COLUMNS_2013_WITH_VARNAMES = [switcher(x) for x in COLNAMES_2013]
