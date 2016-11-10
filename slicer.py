@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
-"""Create reduced datasets based on *all2013.csv* and *inn.csv*"""
+"""Create reduced datasets based on *G2013_ready.csv*"""
 
 import pandas as pd
 file_param = dict(sep=";", index=False, encoding="utf-8")
 
 from column_names import rename_dict
 df = pd.read_csv("data/G2013_ready.csv", sep = ";", 
-                  dtype={'inn':str, 'region':str, 'ok1': int, 'ok2': int, 'ok3':int})
+                  dtype={'inn':str, 'region':str, 
+                         'ok1': int, 'ok2': int, 'ok3':int})
 cols =  ['year', 'title', 'inn', 'ok1', 'ok2', 'ok3', 'region'] + \
         list(rename_dict.keys())
 df = df[cols].rename(columns=rename_dict)
