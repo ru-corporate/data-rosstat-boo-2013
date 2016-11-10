@@ -73,5 +73,5 @@ class DatasetReader():
 if __name__=="__main__":
     R = DatasetReader(2013)
     R.demo()
-    #R.save()
+    R.save()
     

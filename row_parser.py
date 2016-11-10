@@ -3,7 +3,7 @@
 
 from column_names import COLNAMES_2013
 
-EMPTY = ''    
+EMPTY = 0   
 QUOTE_CHAR = '"' 
 
 class RowParser():
