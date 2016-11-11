@@ -6,3 +6,5 @@
 *.rar
 !main.rar
 sample.txt
+data/*
+rosstat/*
