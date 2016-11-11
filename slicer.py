@@ -23,7 +23,12 @@ def read_rosstat_csv(year):
     return pd.read_csv(fn, sep = ";", 
                        dtype={'inn':str, #'region':str, 
                               'ok1': int, 'ok2': int, 'ok3':int})
-                        
+
+#Uncomment below to create rosstat datasets
+Dataset(2015).save()
+Dataset(2014).save()
+Dataset(2013).save()
+Dataset(2012).save()                        
                         
 for year in [2013, 2014, 2015]:
     df = read_rosstat_csv(year)
@@ -33,7 +38,7 @@ for year in [2013, 2014, 2015]:
     df.to_csv(fn, **fmt)
     print("Saved:", fn)
     
-    ix = (df.ta > 10000) | (df.sales> 12*5000)
+    ix = (df.ta > 30000) | (df.sales> 12*5000)
     subset1 = df[ix]
     ## все исходные данные в тыс. рублей, преобразрованные - млн руб.
     subset1.loc[:,DATA_COLS]=(subset1.loc[:,DATA_COLS] / 1000).round(1)

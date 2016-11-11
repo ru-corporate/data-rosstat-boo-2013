@@ -43,7 +43,7 @@ def to_csv(path, gen, cols):
     
 class Dataset():
     
-    chunk = 10000
+    chunk = 500000
     test_csv = "sample.txt"
     
     def __init__(self, year):
