@@ -1,10 +1,11 @@
-*.csv
-!main.csv
-!bln.csv
 *.pyc
 .cache/*
-*.rar
-!main.rar
 sample.txt
+*.rar
+*.csv
+*.xls*
 data/*
 rosstat/*
+!main*.zip
+!bln*.*
+
