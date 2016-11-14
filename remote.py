@@ -5,7 +5,7 @@ import os
 import subprocess
 
 from config import UNPACK_RAR_EXE
-from config import DATA_DIR
+from config import RAR_DIR, ROSSTAT_CSV_DIR
 
 URL={2012:"http://www.gks.ru/opendata/storage/7708234640-bdboo2012/data-20161021t000000-structure-20121231t000000.rar"
    , 2013:"http://www.gks.ru/opendata/storage/7708234640-bdboo2013/data-20161021t000000-structure-20131231t000000.rar"
@@ -21,9 +21,9 @@ class RemoteDataset():
         self.silent = silent
         # RAR filename 
         rar_filename = self.url.split('/')[-1]          
-        self.rar_path = os.path.join(DATA_DIR, rar_filename)
+        self.rar_path = os.path.join(RAR_DIR, rar_filename)        
         # Rosstat CSV file       
-        self.csv_path = os.path.join(DATA_DIR, self.rar_listing())
+        self.csv_path = os.path.join(ROSSTAT_CSV_DIR, self.rar_content())
 
     @staticmethod    
     def _download(url, path):
@@ -47,28 +47,35 @@ class RemoteDataset():
         if not self.silent:
             print(msg, x)        
         
-    def rar_listing(self):        
+    def rar_content(self):        
         return subprocess.check_output([
             UNPACK_RAR_EXE,
             'lb',self.rar_path]).decode("utf-8").strip()
 
     def download(self):        
-        if os.path.exists(self.rar_path):
-            self.echo("Already downloaded:", self.rar_path)
-        else:
+        if not os.path.exists(self.rar_path):
             self.echo("Downloading:", self.url)
             self._download(self.url, self.rar_path)    
             self.echo("Saved as:", self.rar_path)
+        else:
+            self.echo("Already downloaded:", self.rar_path)        
         return self    
 
     def unrar(self):
-        if os.path.exists(self.csv_path):
-            self.echo("Already unpacked:", self.csv_path)
-        else:         
-            self._unrar(self.rar_path, DATA_DIR) 
+        if not os.path.exists(self.csv_path):
+            self._unrar(self.rar_path, ROSSTAT_CSV_DIR) 
             self.echo("Unpacked:", self.csv_path)
-        return self.csv_path
+            return None
+        else:
+            self.echo("Already unpacked:", self.csv_path)
+            return self.csv_path
         
 if __name__=="__main__":
-    fn = [RemoteDataset(x).download().rar_listing() for x in [2012,2013,2014,2015]]
-    RemoteDataset(2015).unrar()
+    assert RemoteDataset(2012).download().unrar()
+    assert RemoteDataset(2013).download().unrar()
+    assert RemoteDataset(2014).download().unrar()
+    assert RemoteDataset(2015).download().unrar()
+    
+    for f in [RemoteDataset(x).rar_content() for x in [2012,2013,2014,2015]]:
+        print(f)
+      

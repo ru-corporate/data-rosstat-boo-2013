@@ -7,10 +7,15 @@ boo_rosstat_2012.csv"
 
 import csv
 import os
+
+import pandas as pd
+
 from remote import RemoteDataset
 from row_parser import adjust_row, adjust_columns
-
 from config import DATA_DIR
+
+DELIM = ";"
+
 
 def get_csv_lines(filename):
     with open(filename, 'r') as csvfile:
@@ -34,7 +39,7 @@ def csv_block(filename, count, skip=0):
 
 def to_csv(path, gen, cols):    
     with open(path, 'w', encoding = "utf-8") as file:
-        writer = csv.writer(file, delimiter=";", lineterminator="\n", 
+        writer = csv.writer(file, delimiter=DELIM, lineterminator="\n", 
                             quoting=csv.QUOTE_MINIMAL)
         writer.writerow(cols)
         writer.writerows(gen)
@@ -50,8 +55,9 @@ class Dataset():
         self.year=year
         self.input_csv=RemoteDataset(year, silent=False).download().unrar()
         filename = "boo_rosstat_" + str(year) + ".csv"
-        self.output_csv = os.path.join(DATA_DIR, filename)
-        self.columns=adjust_columns()        
+        self.local_csv = os.path.join(_DIR, filename)
+        self.columns=adjust_columns()
+        
         
     def parsed_rows(self, n=None, skip=0):
         if n:
@@ -66,10 +72,14 @@ class Dataset():
                 i=0; k+=1
                 print(self.chunk*k) 
                 
-    def save(self):
-        print("\nWriting", self.output_csv)
-        gen = self.parsed_rows()
-        to_csv(self.output_csv, gen, self.columns)
+    def save(self, overwrite=False):
+        if os.path.exists(self.local_csv):
+            self.echo("CSV already exists:", self.local_csv)
+        else:
+            print("Writing:", self.output_csv)
+            gen = self.parsed_rows()
+            to_csv(self.local_csv, gen, self.columns)
+        return self   
     
     def demo(self):
         for row in self.parsed_rows(3,skip=0):        
@@ -79,6 +89,11 @@ class Dataset():
         
     def peek(self, skip=0):
         return next(self.parsed_rows(1,skip))
+        
+    def read_df(self):
+        return pd.read_csv(fn, sep = DELIM, dtype={'inn':str, #'region':str, 
+                                                   'ok1': int, 'ok2': int, 'ok3':int})    
+        
         
 if __name__=="__main__":
     pass

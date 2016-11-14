@@ -1,12 +1,17 @@
+# -*- coding: utf-8 -*-
 import os
 import platform
 
-DATA_DIR = "rosstat"
-RAR_DIR = DATA_DIR
-CSV_DIR = DATA_DIR
-# todo: create if not exists
-# new data dir should be "data"
+RAR_DIR = os.path.join("data","source","rar")
+ROSSTAT_CSV_DIR = os.path.join("data","source","raw_csv")
+CLEAN_CSV_DIR = os.path.join("data","user")# new data dir
 
+# create directories if not exists
+for directory in [RAR_DIR, ROSSTAT_CSV_DIR, CLEAN_CSV_DIR]:
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+# RAR executable
 IS_WINDOWS = (platform.system() == 'Windows')
 if IS_WINDOWS:
     UNPACK_RAR_EXE = os.path.join('bin', 'unrar.exe')

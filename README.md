@@ -39,7 +39,13 @@ Remaining questions / ideas
 Minor todos (in development)
 ============================
 - make <slicer.py> work in chunks, maybe it is faster rather than downloading all data to memory
+- review: make csv reader work in chunks
+- review: [change assert to Exception](https://github.com/epogrebnyak/data-rosstat-boo-2013/blob/csv_reader/columns.py#L800
+- review: https://github.com/epogrebnyak/data-rosstat-boo-2013/pull/3
+- order of [module imports](http://stackoverflow.com/questions/22722976/import-order-coding-standard)
+- unit tests including peek 
 - requirement.txt to allow replicate code more securely 
+- use profiler to analyse program <https://pymotw.com/2/profile/>
 - separate 'rosstat' and 'data' directory
 - zip sliced CSVs on the fly, do not store CSVs itself (<slicer.py>)
 - provide data import examples in README.md 
