@@ -76,6 +76,7 @@ Considering
 
 Todo
 ----
+- print list of variables
 - separate 'rosstat' and 'data' directory +  def get_path(filename, dir_type): in config.py
 - job sequencing using RosstatCSV().downloаd().unrar().save_clean_copy() and Dataset(year).create_files() 
 - provide data import examples in README.md (see above)
