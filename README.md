@@ -21,7 +21,7 @@ Final uses
 
 Entry points
 ============
-```
+```python
 from reader import RawDataset
 from slicer import Dataset
 
