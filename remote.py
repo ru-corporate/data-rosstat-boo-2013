@@ -5,14 +5,7 @@ import os
 import subprocess
 
 from config import UNPACK_RAR_EXE
-from config import RAR_DIR, ROSSTAT_CSV_DIR
-
-URL={2012:"http://www.gks.ru/opendata/storage/7708234640-bdboo2012/data-20161021t000000-structure-20121231t000000.rar"
-   , 2013:"http://www.gks.ru/opendata/storage/7708234640-bdboo2013/data-20161021t000000-structure-20131231t000000.rar"
-   , 2014:"http://www.gks.ru/opendata/storage/7708234640-bdboo2014/data-20161021t000000-structure-20141231t000000.rar"
-   , 2015:"http://www.gks.ru/opendata/storage/7708234640-bdboo2015/data-20161021t000000-structure-20151231t000000.rar"     
-}
-
+from config import get_local_path, URL, VALID_YEARS
 
 class RemoteDataset():   
         
@@ -21,9 +14,10 @@ class RemoteDataset():
         self.silent = silent
         # RAR filename 
         rar_filename = self.url.split('/')[-1]          
-        self.rar_path = os.path.join(RAR_DIR, rar_filename)        
-        # Rosstat CSV file       
-        self.csv_path = os.path.join(ROSSTAT_CSV_DIR, self.rar_content())
+        self.rar_path = get_local_path(rar_filename, dir_type="rar")    
+        # Rosstat original raw CSV file       
+        csv_filename = self.rar_content()
+        self.csv_path = get_local_path(csv_filename, dir_type="raw_csv")
 
     @staticmethod    
     def _download(url, path):
@@ -44,8 +38,9 @@ class RemoteDataset():
         ]) 
         
     def echo(self, msg, x):
+        MSG_OFFSET = '%19s'
         if not self.silent:
-            print(msg, x)        
+            print(MSG_OFFSET % msg , x)        
         
     def rar_content(self):        
         return subprocess.check_output([
@@ -63,7 +58,7 @@ class RemoteDataset():
 
     def unrar(self):
         if not os.path.exists(self.csv_path):
-            self._unrar(self.rar_path, ROSSTAT_CSV_DIR) 
+            self._unrar(self.rar_path, folder=get_local_path("","rar")) 
             self.echo("Unpacked:", self.csv_path)
             return None
         else:
@@ -76,6 +71,6 @@ if __name__=="__main__":
     assert RemoteDataset(2014).download().unrar()
     assert RemoteDataset(2015).download().unrar()
     
-    for f in [RemoteDataset(x).rar_content() for x in [2012,2013,2014,2015]]:
+    for f in [RemoteDataset(x).rar_content() for x in VALID_YEARS]:
         print(f)
       

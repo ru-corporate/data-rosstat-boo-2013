@@ -34,6 +34,7 @@ def adjust_row(vec, year):
          print("Warning: INN not specified")
          print(var['inn'])
          print(vec)
+         return None 
     
     # cutting 'name' from text_data
     text_data = [var[key] for key in NEW_TEXT_COLS]
