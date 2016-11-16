@@ -11,12 +11,13 @@ assert K == len(TEXT_COLS)
 NEW_TEXT_COLS = [x for x in TEXT_COLS if x != 'name']
 
 def adjust_columns():
+    """Column names list corresponding to adjust_row()"""    
     return ['year', 'reviewed', 'org', 'title', 'region', 'ok1', 'ok2', 'ok3'] + \
             NEW_TEXT_COLS + COLNAMES[K:-1]  
 
 
 def adjust_row(vec, year):
-   
+    
     #variable names
     var = dict(zip(TEXT_COLS, vec[0:K]))
             
@@ -31,12 +32,11 @@ def adjust_row(vec, year):
          region = var['inn'][0:2]
     else:
          region = ''
-         print("Warning: INN not specified")
-         print(var['inn'])
+         print("Warning: INN not specified at position 5")         
          print(vec)
          return None 
     
-    # cutting 'name' from text_data
+    # cutting 'name' from text data
     text_data = [var[key] for key in NEW_TEXT_COLS]
     
     # bring date from back of vector

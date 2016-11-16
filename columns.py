@@ -367,3 +367,6 @@ RENAMER = OrderedDict([
 #             ('6300', '6300'),
 #             ('6400', '6400')
              ])
+             
+NEW_COLS = ['year', 'title', 'inn', 'ok1', 'ok2', 'ok3', 'region'] + list(RENAMER.keys())
+DATA_COLS = list(RENAMER.values())             

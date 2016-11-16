@@ -5,7 +5,7 @@ import os
 import subprocess
 
 from config import UNPACK_RAR_EXE
-from config import get_local_path, URL, VALID_YEARS
+from config import make_path, URL, VALID_YEARS
 
 class RemoteDataset():   
         
@@ -14,10 +14,10 @@ class RemoteDataset():
         self.silent = silent
         # RAR filename 
         rar_filename = self.url.split('/')[-1]          
-        self.rar_path = get_local_path(rar_filename, dir_type="rar")    
+        self.rar_path = make_path(rar_filename, dir_type="rar")    
         # Rosstat original raw CSV file       
         csv_filename = self.rar_content()
-        self.csv_path = get_local_path(csv_filename, dir_type="raw_csv")
+        self.csv_path = make_path(csv_filename, dir_type="raw_csv")
 
     @staticmethod    
     def _download(url, path):
@@ -58,7 +58,7 @@ class RemoteDataset():
 
     def unrar(self):
         if not os.path.exists(self.csv_path):
-            self._unrar(self.rar_path, folder=get_local_path("","rar")) 
+            self._unrar(self.rar_path, folder=make_path("","rar")) 
             self.echo("Unpacked:", self.csv_path)
             return None
         else:
