@@ -5,8 +5,8 @@ sample.txt
 *.csv
 *.xls*
 data/*
-rosstat/*
-!main*.zip
-!bln*.*
-!Êíèãà1.xlsx
+# use outputs suspended:
+#!main*.zip
+#!bln*.*
+#!ÃŠÃ­Ã¨Ã£Ã 1.xlsx
 
