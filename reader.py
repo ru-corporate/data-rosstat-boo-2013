@@ -13,9 +13,9 @@ import pandas as pd
 
 from remote import RemoteDataset
 from row_parser import adjust_row, adjust_columns
-from config import make_path, make_path_clean_csv, make_path_base_csv
+from config import make_path, make_path_clean_csv, make_path_base_csv, from_test_folder
 from common import print_elapsed_time
-from columns import VALID_SOURCE_CSV_ROW_WIDTH, RENAMER
+from columns import VALID_SOURCE_CSV_ROW_WIDTH, RENAMER, COLNAMES
 
 DELIM = ";"
 SAMPLE_OUTPUT_CLEAN_CSV = make_path("sample.txt", dir_type="test")
@@ -31,15 +31,18 @@ def custom_df_reader(file):
     else:
         raise FileNotFoundError(file) 
     
-
-def get_csv_lines(filename):
+def csv_stream(filename, sep=DELIM):
     with open(filename, 'r') as csvfile:
-        spamreader = csv.reader(csvfile, delimiter=DELIM) # may need to use encoding="cp1251"
+        spamreader = csv.reader(csvfile, delimiter=sep) # may need to use encoding="cp1251"
         for row in spamreader:
-           if len(row) == VALID_SOURCE_CSV_ROW_WIDTH: #avoid reading last empty row and rows like ''Товарищество собственников жилья "Большевистская 111 "Б"',' 
-               yield row
-           else:
-               print("Skipped row:", row)
+            yield row
+ 
+def get_csv_lines(filename, sep=DELIM):
+    for row in csv_stream(filename, sep):
+       if len(row) == VALID_SOURCE_CSV_ROW_WIDTH: #avoid reading last empty row and rows like ''Товарищество собственников жилья "Большевистская 111 "Б"',' 
+           yield row
+       else:
+           print("Skipped row:", row)
 
 def csv_block(filename, count, skip=0):
     k = 0 
@@ -52,9 +55,9 @@ def csv_block(filename, count, skip=0):
         else:
             break
 
-def to_csv(path, gen, cols):    
+def to_csv(path, gen, cols, sep=DELIM):    
     with open(path, 'w', encoding = "utf-8") as file:
-        writer = csv.writer(file, delimiter=DELIM, lineterminator="\n", 
+        writer = csv.writer(file, delimiter=sep, lineterminator="\n", 
                             quoting=csv.QUOTE_MINIMAL)
         writer.writerow(cols)
         writer.writerows(gen)
@@ -71,10 +74,19 @@ def indicate_progress_by_chunk(gen, chunk, echo=True):
             if echo:
                 print(chunk*k)
 
+inn_position_in_row = 5
+def extract_inn(row):
+    return row[inn_position_in_row]
+
 class Dataset():
     
     chunk = 100 * 1000 
     test_clean_csv = SAMPLE_OUTPUT_CLEAN_CSV 
+    
+    
+    def add_inn_filter(self, inn_csv_filepath):
+        self.inn_list = [r[0] for r in csv_stream(inn_csv_filepath, sep=",")]
+        return self
     
     def __init__(self, year=None, custom_spec=None):        
         self.columns=adjust_columns()
@@ -90,13 +102,30 @@ class Dataset():
             self.sliced_csv=custom_spec['df']
         else:
             raise ValueError("Must specify 'year' or 'custom_spec' for Dataset() instance")
-                
-    def parsed_rows(self, n=None, skip=0):
+
+    def filter_raw_rows(self, n=None, skip=0):        
+        for r in self.raw_rows(n, skip):
+            if extract_inn(r) in self.inn_list:
+                print(r)
+                yield r
+            else:
+                pass            
+
+    def filter_raw_rows_to_csv(self, filename):
+        gen = self.filter_raw_rows()
+        to_csv(filename, gen, COLNAMES, sep="\t")
+        return 1 # success code 
+
+    def raw_rows(self, n=None, skip=0):
         if n:
             gen = csv_block(self.input_csv, n, skip)
         else:
             gen = get_csv_lines(self.input_csv)            
         for r in indicate_progress_by_chunk(gen, self.chunk):
+            yield r
+        
+    def parsed_rows(self, n=None, skip=0):
+        for r in self.raw_rows(n, skip):
             ar = adjust_row(r, self.year)
             if ar: 
                yield ar
@@ -128,7 +157,7 @@ class Dataset():
         
     @print_elapsed_time    
     def read_df(self, subset='columns.RENAMER'): 
-        print("\nReading dataframe...")
+        print("Reading {} dataframe...".format(str(self.year)))
         if subset == 'all':
             return custom_df_reader(self.output_csv)         
         elif subset == 'columns.RENAMER':
@@ -167,6 +196,12 @@ if __name__=="__main__":
     ds.demo()
     df = ds.read_df()        
     print(df[0:4].transpose())
+    
+    fn = from_test_folder("inn.txt")
+    fn2 = from_test_folder("rows.txt")
+    Dataset(2015).add_inn_filter(fn).filter_raw_rows_to_csv(fn2)
+
+
     
     
 #Uncomment below to create rosstat datasets

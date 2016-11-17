@@ -46,6 +46,10 @@ def make_path_for_user_output(year, prefix, ext=".csv"):
      
 def make_path_base_csv(year):
     return make_path_for_user_output(year, 'base', ext=".csv")
+
+def from_test_folder(fn):
+    return make_path(fn, dir_type='test')    
+    
          
      
      

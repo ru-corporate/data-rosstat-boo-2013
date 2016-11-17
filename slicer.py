@@ -1,73 +1,103 @@
 # -*- coding: utf-8 -*-
-""" Create reduced datasets based on boo_rosstat_*.csv files. """
+""" Create reduced datasets for end user"""
 
 from columns import RENAMER
 from reader import Dataset
 from config import make_path_for_user_output
+from common import print_elapsed_time    
 
 FMT = dict(index=False, encoding="utf-8")
 
-year = 2013
-df = Dataset(year).read_df()
+def to_csv(df, file):
+    df.to_csv(file, **FMT)
+    print("Row count:", len(df))
+    print("Saved:", file)     
 
-print("Changing units to mln rub")
-## все исходные данные в тыс. рублей, преобразрованные - млн руб.
-datacols = list(RENAMER.values())
-df.loc[:,datacols]=(df.loc[:,datacols] / 1000).round(1)
-
-#df[df.ta==df.ta.max()].title.iloc[0]
-#Out[11]: 'Научно-Производственный Финансовый Концерн "ИНТЭКОТЕРРА"'
-for x in 1001096, 1002168:
-   df = df.drop(x)
-
-df.plot.scatter(x='ta', y='sales').xlim(1000)
-print("Firms with total assets above 30 mln rub or sales above 60 mln")
-#total assets above 30 mln rub or sales above 5 mln rub per month
-ix = (df.ta > 30) | (df.sales> 12*5)
-df2 = df[ix]
-fn = make_path_for_user_output(year, "main")
-df2.to_csv(fn, **FMT)
-print("Row count:", len(df2))
-print("Saved:", fn)    
+def read_dataset(year):
+    df = Dataset(year).read_df()
     
-BLN = 10**3 # df already in rub million
-bln = df[df.sales>BLN]    
-fn = make_path_for_user_output(year, "bln")
-bln.to_csv(fn, index=False)
-print("Dataset: firms with sales > 1 bln rub")
-print("Row count:", len(bln))    
-print("Saved:", fn)
+    @print_elapsed_time
+    def _foo(df):
+        df = df[df.ta>100]
+        tabooed = [1001096 #'Научно-Производственный Финансовый Концерн "ИНТЭКОТЕРРА"'
+                 , 1002168 # Газпром?
+                 ]    
+        return df.drop(tabooed)    
     
-fn = make_path_for_user_output(year, 'xl_bln', ext=".xlsx")
-bln.to_excel(fn, *FMT) 
-print("Saved:", fn)   
-                              
-                            
-#class TrimmedDataset():
-#    
-#    def __init__(self, year):
-#        print("Year:", year)
-#        self.df = Dataset(year).read_df()
-#        
-#    def save(self):           
-#        slice_rows(self.df) 
-                     
-#TrimmedDataset(2012).save()
+    return _foo(df) 
+
 
 ## проверка АвтоВАЗ
 #vaz = df[df.inn == 6320002223]
 #assert (vaz.sales == 175152000).all()
-#
-## уменьшаем размер выборки
-#ix = (df.ta > 10000) | (df.sales> 12*5000)
-#subset1 = df[ix]
-## все исходные данные в тыс. рублей, преобразрованные - млн руб.
-#data_cols = list(rename_dict.values())
-#subset1[data_cols]=(subset1[data_cols] / 1000).round(1)
-#subset1.to_csv("data/main.csv", **file_param) 
-#
-## предприятия с выручкой свыше 1 млрд. руб. 
-#BLN = 10**3
-#bln = subset1[subset1.sales>BLN]
-#bln.to_csv("data/bln.csv", **file_param)
-#bln.to_csv("data/bln.xlsx", **file_param)  
+
+@print_elapsed_time    
+def adjust_to_mln(df):
+    ## все исходные данные в тыс. рублей, преобразрованные - млн руб.
+    datacols = list(RENAMER.values())
+    df.loc[:,datacols]=(df.loc[:,datacols] / 1000).round(1)
+    return df     
+
+def get_df(year):
+    df = read_dataset(year)
+    return adjust_to_mln(df)
+    
+def subset1(df):
+    year = df.year.loc[1]
+    print("Firms with total assets above 30 mln rub or sales above 60 mln")
+    #total assets above 30 mln rub or sales above 5 mln rub per month
+    ix = (df.ta > 30) | (df.sales> 12*5)
+    df2 = df[ix]
+    fn = make_path_for_user_output(year, "main")
+    to_csv(df2, fn)
+    return df2
+
+def subset2(df):
+    year = df.year.loc[1]    
+    print("Firms with sales > 1 bln rub")
+    BLN = 10**3 # df already in rub million
+    bln = df[df.sales>BLN]    
+    fn = make_path_for_user_output(year, "bln")
+    to_csv(bln, fn)
+        
+    fn = make_path_for_user_output(year, 'xl_bln', ext=".xlsx")
+    bln.to_excel(fn, *FMT) 
+    print("Saved:", fn)   
+
+if __name__ == '__main__':                                   
+    import matplotlib.pyplot as plt
+    import matplotlib.ticker as ticker
+    import numpy as np
+    df = get_df(2013)    
+    t=200 #mln
+    #z = df[(df.ta<t) & (df.sales<t) & (df.ta>0) & (df.sales>=0)][['ta','sales']]
+    z = df[(df.ta>0) & (df.sales>=0)][['ta','sales']]    
+    z['ta_log']=z.ta.apply(lambda x: np.log10(x))   
+    df.nlargest(100, 'ta', keep='first')[['inn','title']].to_csv("inn.txt", index=False)
+    
+    plt.figure()
+    ax = z.ta_log.hist(bins=10, cumulative=True, edgecolor='none')
+    ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda y, pos: ('%.0f')%(y*1e-3)))
+    ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, pos: ('10^%.0f')%x))
+    ax.set_ylabel(" '000")
+    plt.show()    
+
+#    import matplotlib.ticker as ticker
+#    import numpy as np
+#    
+#    fig = plt.figure()
+#    ax = fig.add_subplot(1,1,1)
+#    
+#    mu, sigma=100, 15
+#    x=mu + sigma*np.random.randn(1000000)
+#    n, bins, patches=ax.hist(x, 50, facecolor='green', alpha=0.75)
+#    
+#    ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda y, pos: ('%.2f')%(y*1e-3)))
+#    ax.set_ylabel('Frequency (000s)')
+#    
+    
+    
+    #z.plot(x='ta', y='sales', kind='scatter', s=0.01, xlim=(0,1000), ylim=(0,1000))
+    #plt.figure();
+    #z.ta.plot(kind='bar'); #plt.axhline(0, color='k')
+

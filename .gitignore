@@ -8,4 +8,5 @@ data/*
 rosstat/*
 !main*.zip
 !bln*.*
+!Книга1.xlsx
 
