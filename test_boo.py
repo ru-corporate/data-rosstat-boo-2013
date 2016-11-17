@@ -64,3 +64,18 @@ def test_row_parser():
 
 def test_reader():
     assert Dataset(2013).peep(skip=0) == LINE1_2013_PARSED   
+    
+    
+def test_small_sample():
+    from config import TEST_RAW_CSV 
+    spec = dict(year='2015',
+                inc=TEST_RAW_CSV, 
+                out=from_test_folder("brushed_csv_test.csv"),
+                df=from_test_folder("df_test.csv")
+                )
+    ds = Dataset(custom_spec=spec)
+    assert 1 = ds.create_clean_copy(True)
+    ds.make_df()
+    ds.peek()
+    ds.demo()
+    df = ds.read_df()
