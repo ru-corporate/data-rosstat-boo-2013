@@ -5,6 +5,11 @@
 2. [Описание столбцов CSV файла](http://www.gks.ru/opendata/storage/7708234640-bdboo2013/structure-20131231t000000.TTL)
 3. [Машиночитаемая форма бухгалтерской отчетности](http://www.consultant.ru/document/cons_doc_LAW_32453/58684ab73dd1585821052f9b58c59ef96b907f8a/)
 4. [О предоставлении государственной услуги](https://rg.ru/2013/11/15/buhotchet-dok.html)
+5. [Экранная форма запроса годовой отчтености](http://www.gks.ru/accounting_report)
+6. Данные о статусе юридического лица:
+  - [Единый реестр...](https://bankrot.fedresurs.ru/OrganizationCard.aspx?ID=B4BB9951590C245AD9440AC13999142A)
+  - [Картотека арбитражных дел-](http://kad.arbitr.ru)
+  - [Вестник государственной регистрации](http://www.vestnik-gosreg.ru/?a=sv_2_0:9;s:3)
 
 Наборы данных
 =============
