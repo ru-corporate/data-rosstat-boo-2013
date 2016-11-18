@@ -74,7 +74,7 @@ def test_small_sample():
                 df=from_test_folder("df_test.csv")
                 )
     ds = Dataset(custom_spec=spec)
-    assert 1 == ds.create_clean_copy(True)
+    assert 1 = ds.create_clean_copy(True)
     ds.make_df()
     ds.peek()
     ds.demo()

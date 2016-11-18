@@ -14,6 +14,7 @@ import pandas as pd
 from remote import RemoteDataset
 from row_parser import adjust_row, adjust_columns
 from config import make_path, make_path_clean_csv, make_path_base_csv, from_test_folder
+import config
 from common import print_elapsed_time
 from columns import VALID_SOURCE_CSV_ROW_WIDTH, RENAMER, COLNAMES
 
@@ -39,7 +40,7 @@ def csv_stream(filename, sep=DELIM):
  
 def get_csv_lines(filename, sep=DELIM):
     for row in csv_stream(filename, sep):
-       if len(row) == VALID_SOURCE_CSV_ROW_WIDTH: #avoid reading last empty row and rows like ''РўРѕРІР°СЂРёС‰РµСЃС‚РІРѕ СЃРѕР±СЃС‚РІРµРЅРЅРёРєРѕРІ Р¶РёР»СЊСЏ "Р‘РѕР»СЊС€РµРІРёСЃС‚СЃРєР°СЏ 111 "Р‘"',' 
+       if len(row) == VALID_SOURCE_CSV_ROW_WIDTH: #avoid reading last empty row and rows like ''Товарищество собственников жилья "Большевистская 111 "Б"',' 
            yield row
        else:
            print("Skipped row:", row)
@@ -55,11 +56,12 @@ def csv_block(filename, count, skip=0):
         else:
             break
 
-def to_csv(path, gen, cols, sep=DELIM):    
+def to_csv(path, gen, cols=None, sep=DELIM):    
     with open(path, 'w', encoding = "utf-8") as file:
         writer = csv.writer(file, delimiter=sep, lineterminator="\n", 
                             quoting=csv.QUOTE_MINIMAL)
-        writer.writerow(cols)
+        if cols:                    
+            writer.writerow(cols)
         writer.writerows(gen)
     print("Saved file:", path)    
     return path 
@@ -88,25 +90,23 @@ class Dataset():
         self.inn_list = [r[0] for r in csv_stream(inn_csv_filepath, sep=",")]
         return self
     
-    def __init__(self, year=None, custom_spec=None):        
+    def __init__(self, year, custom_spec=None):        
         self.columns=adjust_columns()
-        if year:        
-            self.year=year
-            self.input_csv=RemoteDataset(year, silent=True).download().unrar()            
-            self.output_csv=make_path_clean_csv(year)
-            self.sliced_csv=make_path_base_csv(year)        
-        elif custom_spec:            
-            self.year=custom_spec['year']
+        self.year=year
+        if custom_spec:            
             self.input_csv=custom_spec['inc']
-            self.output_csv=custom_spec['out']
+            self.clean_csv=custom_spec['out']
             self.sliced_csv=custom_spec['df']
         else:
-            raise ValueError("Must specify 'year' or 'custom_spec' for Dataset() instance")
+            self.input_csv=RemoteDataset(year, silent=True).download().unrar()            
+            self.clean_csv=make_path_clean_csv(year)
+            self.sliced_csv=make_path_base_csv(year)
 
     def filter_raw_rows(self, n=None, skip=0):        
         for r in self.raw_rows(n, skip):
-            if extract_inn(r) in self.inn_list:
-                print(r)
+            inn = extract_inn(r)  
+            if inn in self.inn_list:
+                print("Found inn", inn)
                 yield r
             else:
                 pass            
@@ -132,15 +132,15 @@ class Dataset():
              
     @print_elapsed_time            
     def create_clean_copy(self, overwrite=False):
-        file_exists = os.path.exists(self.output_csv)
+        file_exists = os.path.exists(self.clean_csv)
         if file_exists and overwrite is False:
-            print("CSV already exists:", self.output_csv)
+            print("CSV already exists:", self.clean_csv)
         if not file_exists or overwrite is True:
             print("\nCleaning csv")
             print("Year:", self.year)
-            print("Writing file:", self.output_csv)            
+            print("Writing file:", self.clean_csv)            
             gen = self.parsed_rows()
-            to_csv(self.output_csv, gen, self.columns)
+            to_csv(self.clean_csv, gen, self.columns)
         return 1 # success code 
         
     def demo(self, m=10):    
@@ -154,22 +154,21 @@ class Dataset():
         
     def peek(self, skip=0):
         return next(self.parsed_rows(1,skip))
-        
+     
+
+    def _read_fullcolumn_df(self):
+        print("Reading {} full column dataframe...".format(str(self.year)))
+        return custom_df_reader(self.clean_csv)
+    
     @print_elapsed_time    
     def read_df(self, subset='columns.RENAMER'): 
         print("Reading {} dataframe...".format(str(self.year)))
-        if subset == 'all':
-            return custom_df_reader(self.output_csv)         
-        elif subset == 'columns.RENAMER':
-            return pd.read_csv(self.sliced_csv)
-        else:
-            raise ValueError('Use .read_df(subset=\'all\') for full dataset,' +
-                                ' .read_df() otherwise')
-    
+        return pd.read_csv(self.sliced_csv)
+        
     @print_elapsed_time    
     def make_df(self): 
        print("\nCreating base dataframe and dumping it to csv") 
-       df = custom_df_reader(self.output_csv)         
+       df = custom_df_reader(self.clean_csv)         
        new_cols= ['year', 'title', 'inn', 'ok1', 'ok2', 'ok3', 'region'] \
                   + list(RENAMER.keys())                     
        df2 = df[new_cols].rename(columns=RENAMER)
@@ -180,37 +179,42 @@ class Dataset():
     # maybe - make slicved df from source csv without dump?
 
 if __name__=="__main__":
-    from config import TEST_RAW_CSV 
-    #    self.year=custom_spec['year']
-    #    self.input_csv=custom_spec['in']
-    #    self.output_csv=custom_spec['out']
-    #    self.sliced_csv=custom_spec['df']            
-    spec = dict(year='2015',
-                inc=TEST_RAW_CSV, #make_path("raw_csv_test.csv", dir_type='test'),
-                out=make_path("brushed_csv_test.csv", dir_type='test'),
-                df=make_path("df_test.csv", dir_type='test'))
-    ds = Dataset(custom_spec=spec)
-    ds.create_clean_copy(True)
-    ds.make_df()
-    ds.peek()
-    ds.demo()
-    df = ds.read_df()        
-    print(df[0:4].transpose())
+    # from config import TEST_RAW_CSV 
+    # spec = dict(year='2015',
+                # inc=TEST_RAW_CSV, 
+                # out=from_test_folder("brushed_csv_test.csv"),
+                # df=from_test_folder("df_test.csv")
+                # )
+    # ds = Dataset(custom_spec=spec)
+    # assert 1 == ds.create_clean_copy(True)
+    # ds.make_df()
+    # ds.peek()
+    # ds.demo()
+    # df = ds.read_df()        
+    # print(df[0:4].transpose())
     
-    fn = from_test_folder("inn.txt")
-    fn2 = from_test_folder("rows.txt")
-    Dataset(2015).add_inn_filter(fn).filter_raw_rows_to_csv(fn2)
-
-
+    # fn = from_test_folder("inn.txt")
+    # fn2 = from_test_folder("rows.txt")
+    # fn3 = from_test_folder("rows.xlsx")
+    # ds = Dataset(2015).add_inn_filter(fn)
+    # ds.filter_raw_rows_to_csv(fn2)
+    # df = ds.make_df()
+    # df.to_excel(fn3)
     
+    #fn = config.from_inn_folder("inn.txt")
+    #ds = Dataset(2015).add_inn_filter(fn)
+    #gen = list(ds.filter_raw_rows())
     
-#Uncomment below to create rosstat datasets
-    #Dataset(2015).save()
-    #Dataset(2014).save()
-    #Dataset(2013).save()
-    #Dataset(2012).save()
-    
-# peek into dataset 
-    #dataset = Dataset(2015)
-    #dataset.demo()
-    #print(dataset.peek(361))
+    fn2 = config.from_inn_folder("inn_rows.txt")
+    #to_csv(fn2, gen, cols=COLNAMES)
+    fn3 = config.from_inn_folder("inn_rows_clean.txt")
+    fn4 = config.from_inn_folder("inn_rows_df.txt")
+    spec = dict(inc=fn2, 
+                out=fn3,
+                df=fn4)        
+    ds2=Dataset(2015, custom_spec=spec)
+    ds2.create_clean_copy(overwrite=True)
+    df=ds2.make_df()
+    fn4 = config.from_inn_folder("projects.xlsx")
+    df.to_excel(fn4)
+     

@@ -10,8 +10,8 @@ Read column names from TTL files for 2012-2015. Create hardcoded column names.
 
 """
 from collections import OrderedDict
-import urllib.request
-import chardet
+#import urllib.request
+#import chardet
 import pandas as pd
 
 def get_format(k):

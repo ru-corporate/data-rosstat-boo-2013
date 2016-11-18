@@ -22,7 +22,8 @@ VALID_YEARS = [2012,2013,2014,2015]
 # folder tree for csv's and archives
 FOLDERS=dict(rar         = os.path.join("data","source","rar")
            , raw_csv     = os.path.join("data","source","raw")
-           , clean_csv   = os.path.join("data","source","csv")
+           , clean_csv   = os.path.join("data","source","csv_full")
+           , base_csv    = os.path.join("data","source","csv_base")
            , inn_subsets = os.path.join("data","inn")
            , user_slices = os.path.join("data")
            , test        = os.path.join("data","test")           
@@ -34,23 +35,32 @@ for directory in FOLDERS.values():
         os.makedirs(directory)
 
 # local filename creation functions
-def make_path(filename, dir_type='user_slices'):
+def make_path(filename, dir_type):
    return os.path.join(FOLDERS[dir_type], filename)  
 
+# wrappers for path creation
+def from_raw_csv_folder(filename):
+    return make_path(filename, dir_type='raw_csv')
+
+def from_test_folder(fn):
+    return make_path(fn, dir_type='test')
+
+def from_inn_folder(fn):
+    return make_path(fn, dir_type='inn_subsets')
+
+# wrappers for paths using year
 def make_path_clean_csv(year):
     filename = "rosstat_" + str(year) + ".csv"
     return make_path(filename, "clean_csv")        
 
-def make_path_for_user_output(year, prefix, ext=".csv"):
-    return os.path.join(FOLDERS['user_slices'], prefix + "_" + str(year) + ext)
-     
 def make_path_base_csv(year):
+    filename = "base_" + str(year) + ".csv"
     return make_path_for_user_output(year, 'base', ext=".csv")
 
-def from_test_folder(fn):
-    return make_path(fn, dir_type='test')    
+def make_path_for_user_output(year, prefix, ext=".csv"):
+    filename = prefix + "_" + str(year) + ext
+    return os.path.join(FOLDERS['user_slices'], filename)  
+
     
-         
-     
-     
-TEST_RAW_CSV = make_path("raw_csv_test.csv", dir_type='test')   
+# move to different file?     
+TEST_RAW_CSV = from_test_folder("raw_csv_test.csv")
