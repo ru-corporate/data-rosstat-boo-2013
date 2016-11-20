@@ -1,9 +1,14 @@
-#Machine-readable dataset of 2012-2015 Russian enterprises financial reports + some teaching assignments
+#Machine-readable dataset of 2012-2015 Russian enterprises financial reports
 
 *Current development branch*: [csv-reader](https://github.com/epogrebnyak/data-rosstat-boo-2013/tree/csv_reader)
 
-The code allows to collect and transform corporate data from Rosstat statistics office web site 
-and store full or sliced CSV files for further analysis in R/pandas/Eviews.
+The code allows to collect corporate data from Rosstat statistics office web site and store full or sliced CSV 
+files for further analysis in R/pandas/Eviews.
+
+Final uses
+==========
+- students can download smaller subsets of Rosstat data as csv/xlsx files (fewer variables, less companies, 3-5Mb to 10-20Mb) 
+- a more experienced user can reproduce a clean version of full Rosstat dataset on a local computer (300Mb-1.3Gb)
 
 Source data
 ===========
@@ -14,10 +19,6 @@ Source data
     transformation issue
  -- several rows are corrupted in source files (see "Known bugs" below)
  
-Final uses
-==========
-- students can download smaller subsets of Rosstat data as csv/xlsx files (fewer variables, less companies, 3-5Mb to 10-20Mb) 
-- a more experienced user can reproduce a clean version of full Rosstat dataset on a local computer (300Mb-1.3Gb)
 
 Entry points
 ============

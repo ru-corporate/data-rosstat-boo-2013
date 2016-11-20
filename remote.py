@@ -15,9 +15,9 @@ class RemoteDataset():
         # RAR filename 
         rar_filename = self.url.split('/')[-1]          
         self.rar_path = make_path(rar_filename, dir_type="rar")    
-        # Rosstat original raw CSV file       
+        # Rosstat raw CSV file       
         csv_filename = self.rar_content()
-        self.csv_path = make_path(csv_filename, dir_type="raw_csv")
+        self.csv_path = make_path(csv_filename, dir_type="raw_csv")        
 
     @staticmethod    
     def _download(url, path):
