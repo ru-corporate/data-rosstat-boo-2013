@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 from remote import RemoteDataset 
 from reader import Dataset 
-from config import from_inn_folder
 
 
-#RemoteDataset(2015).download().unrar()
+RemoteDataset(2013).download().unrar()
 
 fn = from_inn_folder("inn.txt")
 ds = Dataset(2015).add_inn_filter(fn)

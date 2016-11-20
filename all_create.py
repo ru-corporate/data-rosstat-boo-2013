@@ -1,12 +1,11 @@
 from pandas import DataFrame
 from reader import Dataset
-#from slicer import Slices
 from config import VALID_YEARS
 
 
 for year in VALID_YEARS:
     # Download, unrar, parse and save clean dataset as local CSV file
-    assert 1 == Dataset(year).create_clean_copy(overwrite=True) 
+    Dataset(year).create_clean_copy(overwrite=True) 
     
 for year in VALID_YEARS:
     # Create base_*.csv - all companies with fewer columns
