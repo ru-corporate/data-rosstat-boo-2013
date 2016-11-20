@@ -5,19 +5,20 @@ import os
 import subprocess
 
 from config import UNPACK_RAR_EXE
-from config import make_path, URL, VALID_YEARS
+from config import from_rar_folder, from_raw_csv_folder, raw_csv_folder
+from config import URL, VALID_YEARS
 
 class RemoteDataset():   
         
     def __init__(self, year, silent=False):
         self.url = URL[year]
         self.silent = silent
-        # RAR filename 
+        # RAR file path 
         rar_filename = self.url.split('/')[-1]          
-        self.rar_path = make_path(rar_filename, dir_type="rar")    
-        # Rosstat raw CSV file       
+        self.rar_path = from_rar_folder(rar_filename)    
+        # Rosstat raw CSV file path      
         csv_filename = self.rar_content()
-        self.csv_path = make_path(csv_filename, dir_type="raw_csv")        
+        self.csv_path = from_raw_csv_folder(csv_filename)        
 
     @staticmethod    
     def _download(url, path):
@@ -37,16 +38,18 @@ class RemoteDataset():
             '-y'
         ]) 
         
+    def rar_content(self):
+        """List single filename stored in RAR archive."""    
+        return subprocess.check_output([
+            UNPACK_RAR_EXE,
+            'lb',self.rar_path]).decode("utf-8").strip()    
+        
     def echo(self, msg, x):
         MSG_OFFSET = '%19s'
         if not self.silent:
-            print(MSG_OFFSET % msg , x)        
-        
-    def rar_content(self):        
-        return subprocess.check_output([
-            UNPACK_RAR_EXE,
-            'lb',self.rar_path]).decode("utf-8").strip()
+            print(MSG_OFFSET % msg , x)
 
+    # public methods download and unrar          
     def download(self):        
         if not os.path.exists(self.rar_path):
             self.echo("Downloading:", self.url)
@@ -58,7 +61,7 @@ class RemoteDataset():
 
     def unrar(self):
         if not os.path.exists(self.csv_path):
-            self._unrar(self.rar_path, folder=make_path("","rar")) 
+            self._unrar(self.rar_path, folder=raw_csv_folder()) 
             self.echo("Unpacked:", self.csv_path)
             return None
         else:
@@ -66,11 +69,7 @@ class RemoteDataset():
             return self.csv_path
         
 if __name__=="__main__":
-    assert RemoteDataset(2012).download().unrar()
-    assert RemoteDataset(2013).download().unrar()
-    assert RemoteDataset(2014).download().unrar()
-    assert RemoteDataset(2015).download().unrar()
-    
-    for f in [RemoteDataset(x).rar_content() for x in VALID_YEARS]:
-        print(f)
-      
+    RemoteDataset(2012).download().unrar()
+    RemoteDataset(2013).download().unrar()
+    RemoteDataset(2014).download().unrar()
+    RemoteDataset(2015).download().unrar()    

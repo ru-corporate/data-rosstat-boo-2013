@@ -2,8 +2,6 @@
 """Testing modules."""
 
 from config import get_local_path, VALID_YEARS, TEST_RAW_CSV
-from remote import RemoteDataset
-from remote import RemoteDataset
 from row_parser import dequote, okved3, EMPTY
 from row_parser import adjust_row   
 from reader import get_csv_lines
@@ -17,19 +15,7 @@ def test_config():
     assert "data\\source\\csv\\123.csv" == get_local_path("123.csv", "clean_csv")
     assert len([adjust_row(x,2015) for x in get_csv_lines(TEST_RAW_CSV)]) == 5   
     
-#
-#   remote.py 
-#
-
-def test_remote():
-    # files are in place 
-    assert 1 == RemoteDataset(2012).download().unrar()
-    assert 1 == RemoteDataset(2013).download().unrar()
-    assert 1 == RemoteDataset(2014).download().unrar()
-    assert 1 == RemoteDataset(2015).download().unrar()
-    
-    for f in [RemoteDataset(x).rar_content() for x in [2012,2013,2014,2015]]:
-        assert f    
+   
     
 #
 #   row_parser.py 

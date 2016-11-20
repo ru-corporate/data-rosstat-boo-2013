@@ -29,6 +29,9 @@ FOLDERS=dict(rar         = os.path.join("data","source","rar")
            , test        = os.path.join("data","test")           
         )
 
+def raw_csv_folder():
+    return FOLDERS['raw_csv']        
+        
 # create directories if not exist
 for directory in FOLDERS.values():
     if not os.path.exists(directory):
@@ -39,6 +42,9 @@ def make_path(filename, dir_type):
    return os.path.join(FOLDERS[dir_type], filename)  
 
 # wrappers for path creation
+def from_rar_folder(filename):
+    return make_path(filename, dir_type='rar')
+
 def from_raw_csv_folder(filename):
     return make_path(filename, dir_type='raw_csv')
 
