@@ -1,29 +1,34 @@
-"""
+Program flow
+============
 
+Download and unrar
+------------------
+- Download rar file  
+- Unpack rar file into raw csv 
 
-- download and unpach raw csv file 
-- create error-free raw csv file by line and log 'broken lines' in separate error file
-- create a slice of error-free raw csv file by company inn numbers 
-- save base csv file: 
- - subset columns in error-free raw csv file 
- - multiply numeric values 
- - add new columns (okved, dequote, year, region)
-""" 
+```python 
+from remote import RemoteDatatset
+RemoteDatatset(2013).download().unpack()
+```
 
-year = 2015
-path_dirty_csv = download_unrar(year)
-path_clean_csv, path_error_log = inspect_raw_csv(path_dirty_csv)
-path_sliced_csv, path_error_log = inspect_raw_csv(path_dirty_csv, inn_list=[])
+Make readable raw csv file  
+--------------------------
+- Purge 'broken lines' from raw csv (company ha no INN field, wrong number of columns)
+- Write error log in separate file 
+- Write column names row at the start of raw csv file
 
-data:
-- 2015
---- 2015.rar
---- temp_2015.csv
---- source_2015.csv
---- errors_2015.csv
---- base_2015.csv
---- inn1
------ inn1.txt
------ _source_inn_2015.csv
------ base_veb_2015.csv
+```python  
+RemoteDatatset(2013).clean()
+```
 
+Transform data
+--------------
+- Adjust units in numeric values   
+- Produce file with fewer columns
+- Add new columns (okveds, title dequote, year, region by inn)
+- Must keep INN and region codes as strings and data columns as integers
+
+Make subsets by row  
+--------------------
+- make subset by INN field  
+- make subset by assets / sales
