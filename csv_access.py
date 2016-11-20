@@ -3,6 +3,7 @@ import os
 
 DELIM = ";"
 CHUNKSIZE = 100*1000
+
    
 def csv_stream(filename, sep=DELIM):
     with open(filename, 'r') as csvfile:
@@ -20,9 +21,9 @@ def to_csv(path, stream, cols=None, sep=DELIM):
     print("Saved file:", path)    
     return path 
 
-def csv_block(filename, count, skip=0):
+def csv_block(filename, count, skip=0, sep=DELIM):
     k = 0 
-    for i, row in enumerate(get_csv_lines(filename)):
+    for i, row in enumerate(csv_stream(filename,sep)):
         if i<skip:
             continue
         if k<count: 

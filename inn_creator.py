@@ -1,5 +1,6 @@
 import config
-from reader import Dataset, to_csv 
+from csv_access import to_csv 
+from reader import Dataset
 
 if __name__ == "__main__":
     # read inn list

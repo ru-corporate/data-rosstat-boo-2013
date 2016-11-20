@@ -20,14 +20,15 @@ URL={2012:"http://www.gks.ru/opendata/storage/7708234640-bdboo2012/data-20161021
 VALID_YEARS = [2012,2013,2014,2015] 
 
 # folder tree for csv's and archives
-FOLDERS=dict(rar         = os.path.join("data","source","rar")
-           , raw_csv     = os.path.join("data","source","raw","dirty")
-           , clean_csv   = os.path.join("data","source","raw","clean")
-           , error_log   = os.path.join("data","source","raw","errors")
-           , base_csv    = os.path.join("data","source","csv_base")
-           , inn_subsets = os.path.join("data","inn")
-           , user_slices = os.path.join("data")
-           , test        = os.path.join("data","test")           
+FOLDERS=dict(rar          = os.path.join("data","source","rar")
+           , raw_csv      = os.path.join("data","source","raw","dirty")
+           , clean_csv    = os.path.join("data","source","raw","clean")
+           , error_log    = os.path.join("data","source","raw","errors")
+           , adjusted_csv = os.path.join("data","source","csv","adjusted")
+           , base_csv     = os.path.join("data","source","csv","sliced")
+           , inn_subsets  = os.path.join("data","inn")
+           , user_slices  = os.path.join("data")
+           , test         = os.path.join("data","test")           
         )
 
 def raw_csv_folder():
@@ -71,8 +72,4 @@ def make_path_base_csv(year):
 
 def make_path_for_user_output(year, prefix, ext=".csv"):
     filename = prefix + "_" + str(year) + ext
-    return os.path.join(FOLDERS['user_slices'], filename)  
-
-    
-# move to different file?     
-TEST_RAW_CSV = from_test_folder("raw_csv_test.csv")
+    return os.path.join(FOLDERS['user_slices'], filename)    

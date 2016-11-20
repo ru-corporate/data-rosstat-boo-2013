@@ -63,9 +63,12 @@ class Cleaner():
                 yield row
             
     def run(self):
-        gen = self.get_filtered_rows() 
-        to_csv(path=self.clean_csv, stream=gen)   
-        return self.clean_csv         
+        if not os.path.exists(self.clean_csv):
+            gen = self.get_filtered_rows() 
+            to_csv(path=self.clean_csv, stream=gen)   
+        else:
+            self.echo("Already cleaned:", self.clean_csv )        
+        return self.clean_csv
             
 if __name__ == "__main__":
     Cleaner(2012).run()            
