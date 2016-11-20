@@ -13,7 +13,7 @@ RemoteDatatset(2013).download().unpack()
 
 Make readable raw csv file  
 --------------------------
-- Purge 'broken lines' from raw csv (company ha no INN field, wrong number of columns)
+- Purge 'broken lines' from raw csv (company has no INN field, wrong number of columns)
 - Write error log in separate file 
 - Write column names row at the start of raw csv file
 

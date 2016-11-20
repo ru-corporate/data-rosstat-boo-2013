@@ -21,8 +21,9 @@ VALID_YEARS = [2012,2013,2014,2015]
 
 # folder tree for csv's and archives
 FOLDERS=dict(rar         = os.path.join("data","source","rar")
-           , raw_csv     = os.path.join("data","source","raw")
-           , clean_csv   = os.path.join("data","source","csv_full")
+           , raw_csv     = os.path.join("data","source","raw","dirty")
+           , clean_csv   = os.path.join("data","source","raw","clean")
+           , error_log   = os.path.join("data","source","raw","errors")
            , base_csv    = os.path.join("data","source","csv_base")
            , inn_subsets = os.path.join("data","inn")
            , user_slices = os.path.join("data")
@@ -30,6 +31,7 @@ FOLDERS=dict(rar         = os.path.join("data","source","rar")
         )
 
 def raw_csv_folder():
+    """Path to raw csv folder"""
     return FOLDERS['raw_csv']        
         
 # create directories if not exist
@@ -55,6 +57,10 @@ def from_inn_folder(fn):
     return make_path(fn, dir_type='inn_subsets')
 
 # wrappers for paths using year
+def make_path_error_log(year):
+    filename = "errors_{}.txt".format(str(year))
+    return make_path(filename, "error_log")
+    
 def make_path_clean_csv(year):
     filename = "rosstat_" + str(year) + ".csv"
     return make_path(filename, "clean_csv")        

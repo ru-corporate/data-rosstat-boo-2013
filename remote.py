@@ -45,9 +45,9 @@ class RemoteDataset():
             'lb',self.rar_path]).decode("utf-8").strip()    
         
     def echo(self, msg, x):
-        MSG_OFFSET = '%19s'
+        MSG_OFFSET = '%s' #'%19s'
         if not self.silent:
-            print(MSG_OFFSET % msg , x)
+            print(MSG_OFFSET % msg, x)
 
     # public methods download and unrar          
     def download(self):        
@@ -63,10 +63,9 @@ class RemoteDataset():
         if not os.path.exists(self.csv_path):
             self._unrar(self.rar_path, folder=raw_csv_folder()) 
             self.echo("Unpacked:", self.csv_path)
-            return None
         else:
             self.echo("Already unpacked:", self.csv_path)
-            return self.csv_path
+        return self.csv_path
         
 if __name__=="__main__":
     RemoteDataset(2012).download().unrar()

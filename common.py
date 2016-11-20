@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
-"""
-Common functions used inother modules.
-"""
+
 
 import time
+
 ##common timer function
 def print_elapsed_time(f):
     def wrapper(*args, **kwargs):
