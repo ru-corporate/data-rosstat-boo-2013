@@ -25,7 +25,7 @@ FOLDERS=dict(rar          = os.path.join("data","source","rar")
            , clean_csv    = os.path.join("data","source","raw","clean")
            , error_log    = os.path.join("data","source","raw","errors")
            , adjusted_csv = os.path.join("data","source","csv","adjusted")
-           , base_csv     = os.path.join("data","source","csv","sliced")
+           , sliced_csv     = os.path.join("data","source","csv","sliced")
            , inn_subsets  = os.path.join("data","inn")
            , user_slices  = os.path.join("data")
            , test         = os.path.join("data","test")           
@@ -33,17 +33,19 @@ FOLDERS=dict(rar          = os.path.join("data","source","rar")
 
 def raw_csv_folder():
     """Path to raw csv folder"""
-    return FOLDERS['raw_csv']        
-        
-# create directories if not exist
-for directory in FOLDERS.values():
-    if not os.path.exists(directory):
-        os.makedirs(directory)
+    return FOLDERS['raw_csv']      
+    
+def make_dirs():        
+    # create directories if not exist
+    for directory in FOLDERS.values():
+        if not os.path.exists(directory):
+            os.makedirs(directory)
 
 # local filename creation functions
 def make_path(filename, dir_type):
    return os.path.join(FOLDERS[dir_type], filename)  
 
+   
 # wrappers for path creation
 def from_rar_folder(filename):
     return make_path(filename, dir_type='rar')
@@ -57,6 +59,7 @@ def from_test_folder(fn):
 def from_inn_folder(fn):
     return make_path(fn, dir_type='inn_subsets')
 
+    
 # wrappers for paths using year
 def make_path_error_log(year):
     filename = "errors_{}.txt".format(str(year))
@@ -66,10 +69,16 @@ def make_path_clean_csv(year):
     filename = "rosstat_" + str(year) + ".csv"
     return make_path(filename, "clean_csv")        
 
-def make_path_base_csv(year):
-    filename = "base_" + str(year) + ".csv"
-    return make_path_for_user_output(year, 'base', ext=".csv")
+def make_path_adjusted_csv(year):
+    filename = "adjusted_" + str(year) + ".csv"
+    return make_path(filename, "adjusted_csv") 
+    
+def make_path_sliced_csv(year):
+    filename = "sliced_" + str(year) + ".csv"
+    return make_path(filename, "sliced_csv") 
 
+    
+# userfile wrapper
 def make_path_for_user_output(year, prefix, ext=".csv"):
     filename = prefix + "_" + str(year) + ext
     return os.path.join(FOLDERS['user_slices'], filename)    

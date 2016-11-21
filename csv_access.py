@@ -1,15 +1,34 @@
 import csv
-import os
 
 DELIM = ";"
 CHUNKSIZE = 100*1000
 
-   
+
+def csv_stream(filename, enc='utf-8', sep=DELIM):
+   if enc not in ['utf-8', 'windows-1251']:
+       raise ValueError("Wrong encoding: " + str(enc))
+   print("CSV encoding:", enc) 
+   with open(filename, 'r', encoding=enc) as csvfile:
+      spamreader = csv.reader(csvfile, delimiter=sep)   
+      for row in spamreader:
+         yield row 
+
 def csv_stream(filename, sep=DELIM):
-    with open(filename, 'r') as csvfile:
-        spamreader = csv.reader(csvfile, delimiter=sep) # may need to use encoding="cp1251"
-        for row in spamreader:
-            yield row
+   try:
+       enc='utf-8'  
+       print("CSV encoding:", enc) 
+       with open(filename, 'r', encoding=enc) as csvfile:
+          spamreader = csv.reader(csvfile, delimiter=sep)   
+          for row in spamreader:
+             yield row      
+   except UnicodeDecodeError:
+       enc='windows-1251'  
+       print("CSV encoding:", enc) 
+       with open(filename, 'r', encoding=enc) as csvfile:
+          spamreader = csv.reader(csvfile, delimiter=sep)   
+          for row in spamreader:
+             yield row 
+      
  
 def to_csv(path, stream, cols=None, sep=DELIM):    
     with open(path, 'w', encoding = "utf-8") as file:
