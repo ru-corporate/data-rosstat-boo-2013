@@ -1,12 +1,4 @@
+*.csv
 *.pyc
 .cache/*
-sample.txt
 *.rar
-*.csv
-*.xls*
-data/*
-# use outputs suspended:
-#!main*.zip
-#!bln*.*
-#!Êíèãà1.xlsx
-
