@@ -26,7 +26,12 @@ def read_dataset(year):
     
     return _foo(df) 
 
-
+    
+## userfile wrapper
+#def make_path_for_user_output(year, prefix, ext=".csv"):
+#    filename = prefix + "_" + str(year) + ext
+#    return os.path.join(FOLDERS['user_slices'], filename) 
+    
 ## проверка АвтоВАЗ
 #vaz = df[df.inn == 6320002223]
 #assert (vaz.sales == 175152000).all()

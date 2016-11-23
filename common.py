@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-
 import time
+import config
 
 def print_elapsed_time(f):
     """Print execution time for *f* to screen."""
@@ -12,19 +12,55 @@ def print_elapsed_time(f):
         return result
     return wrapper
 
-#     
-# def deny_if_exists(f)  
+    
+class GenericLogger():
+    """Log errors while reading rows."""
+    def __init__(self, filename):
+        self.log_filename=filename 
+        
+    def start(self):
+        with open(self.log_filename,'w') as f:
+            print("Log started", file=f)
+            
+    def report(self, *msg):        
+        with open(self.log_filename,'a') as f:
+            print(*msg)
+            print(*msg, file=f)        
+
+class Logger(GenericLogger):
+    """Logger with predefined filename for error stream."""
+
+    def __init__(self, year):
+        filename = config.make_path_error_log(year)
+        super().__init__(filename)
 
 
- # make_adjusted_csv(self, overwrite=False):
-    # file_exists = os.path.exists(self.adjusted_csv)
-    # if file_exists and overwrite is False:
-        # print("Adjusted CSV already exists:", self.adjusted_csv)
-    # if not file_exists or overwrite is True:
-        # print("Year:", self.year)
-        # print("Writing adjusted CSV:", self.adjusted_csv)            
-        # #
-        # gen = self.parsed_rows()
-        # csv_access.to_csv(self.adjusted_csv, gen, self.columns)
-        # #
-    # return self.adjusted_csv # success code     
+class Progress():
+    """Minimal progress spinner. 
+       See also <http://docs.astropy.org/en/v0.2/_generated/astropy.utils.console.Spinner.html#>
+    """
+    
+    STEP = 100*1000
+    
+    def __init__(self):
+        self.count=0 
+        self.k=0 
+           
+    def next(self):
+        self.count += 1
+        self.k += 1
+        if self.k == self.STEP:
+            print("%7d lines read" % self.count)
+            self.k = 0
+            
+    def __enter__(self):
+        return self
+        
+    def __exit__(self, exc_type, exc_value, traceback):
+        pass
+
+def pipe(gen):
+    with Progress() as prog:
+        for item in gen:
+            prog.next()
+            yield item       

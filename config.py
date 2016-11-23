@@ -20,20 +20,22 @@ URL={2012:"http://www.gks.ru/opendata/storage/7708234640-bdboo2012/data-20161021
 VALID_YEARS = [2012,2013,2014,2015] 
 
 # folder tree for csv's and archives
-FOLDERS=dict(rar          = os.path.join("data","source","rar")
-           , raw_csv      = os.path.join("data","source","raw","dirty")
-           , clean_csv    = os.path.join("data","source","raw","clean")
-           , error_log    = os.path.join("data","source","raw","errors")
-           , adjusted_csv = os.path.join("data","source","csv","adjusted")
-           , sliced_csv     = os.path.join("data","source","csv","sliced")
-           , inn_subsets  = os.path.join("data","inn")
-           , user_slices  = os.path.join("data")
-           , test         = os.path.join("data","test")           
+FOLDERS=dict(rar          = os.path.join("data", "rar")
+           , raw_csv      = os.path.join("data", "raw_csv")
+           , csv          = os.path.join("data", "csv")
+           , error_log    = os.path.join("data", "errors")
+           , inn_subsets  = os.path.join("data", "inn")
+           , test         = os.path.join("data", "test")           
+           , user_slices  = os.path.join("data", "user_files")
         )
 
-def raw_csv_folder():
+def get_raw_csv_folder():
     """Path to raw csv folder"""
     return FOLDERS['raw_csv']      
+    
+def get_rar_folder():
+    """Path to raw csv folder"""
+    return FOLDERS['rar']          
     
 def make_dirs():        
     # create directories if not exist
@@ -41,44 +43,33 @@ def make_dirs():
         if not os.path.exists(directory):
             os.makedirs(directory)
 
+# todo: what is a better way to isolate creation of directories? is it ok as is?    
+# when I import this module dirs are not created        
+
+# run make_dirs() to create folders
+make_dirs()            
+            
 # local filename creation functions
-def make_path(filename, dir_type):
+def _make_path(filename, dir_type):
    return os.path.join(FOLDERS[dir_type], filename)  
-
    
-# wrappers for path creation
-def from_rar_folder(filename):
-    return make_path(filename, dir_type='rar')
-
-def from_raw_csv_folder(filename):
-    return make_path(filename, dir_type='raw_csv')
-
-def from_test_folder(fn):
-    return make_path(fn, dir_type='test')
-
-def from_inn_folder(fn):
-    return make_path(fn, dir_type='inn_subsets')
-
-    
-# wrappers for paths using year
+# wrappers for paths creation using year
 def make_path_error_log(year):
     filename = "errors_{}.txt".format(str(year))
-    return make_path(filename, "error_log")
-    
-def make_path_clean_csv(year):
-    filename = "rosstat_" + str(year) + ".csv"
-    return make_path(filename, "clean_csv")        
+    return _make_path(filename, "error_log")
+   
+def make_path_parsed_csv(year):
+    filename = "parsed_" + str(year) + ".csv"
+    return _make_path(filename, "csv")
 
-def make_path_adjusted_csv(year):
-    filename = "adjusted_" + str(year) + ".csv"
-    return make_path(filename, "adjusted_csv") 
+# inn subset
+def get_inn_list_path():
+    return _make_path('inn.txt', "inn_subsets") 
     
-def make_path_sliced_csv(year):
-    filename = "sliced_" + str(year) + ".csv"
-    return make_path(filename, "sliced_csv") 
-
+def make_path_inn_csv(year):
+    filename = "inn_subset_" + str(year) + ".csv"
+    return _make_path(filename, "inn_subsets")    
     
-# userfile wrapper
-def make_path_for_user_output(year, prefix, ext=".csv"):
-    filename = prefix + "_" + str(year) + ext
-    return os.path.join(FOLDERS['user_slices'], filename)    
+# not used    
+def from_test_folder(fn):
+    return _make_path(fn, dir_type='test')    
