@@ -7,7 +7,7 @@ import subprocess
 import config
 from config import UNPACK_RAR_EXE, URL
 
-class RemoteDataset():   
+class RawDataset():   
         
     def __init__(self, year, silent=False):
         config.make_dirs()
