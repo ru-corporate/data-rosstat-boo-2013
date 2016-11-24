@@ -20,12 +20,12 @@ URL={2012:"http://www.gks.ru/opendata/storage/7708234640-bdboo2012/data-20161021
 VALID_YEARS = [2012,2013,2014,2015] 
 
 # folder tree for csv's and archives
-FOLDERS=dict(rar          = os.path.join("data", "rar")
-           , raw_csv      = os.path.join("data", "raw_csv")
+FOLDERS=dict(rar          = os.path.join("data", "temp", "rar")
+           , raw_csv      = os.path.join("data", "temp", "raw_csv")
            , csv          = os.path.join("data", "csv")
-           , error_log    = os.path.join("data", "errors")
+           , error_log    = os.path.join("data", "temp","errors")
            , inn_subsets  = os.path.join("data", "inn")
-           , test         = os.path.join("data", "test")           
+           , test         = os.path.join("data", "temp","test")           
            , user_slices  = os.path.join("data", "user_files")
         )
 
@@ -43,10 +43,6 @@ def make_dirs():
         if not os.path.exists(directory):
             os.makedirs(directory)
 
-# todo: what is a better way to isolate creation of directories? is it ok as is?    
-# when I import this module dirs are not created        
-
-# run make_dirs() to create folders
 make_dirs()            
             
 # local filename creation functions
@@ -71,5 +67,5 @@ def make_path_inn_csv(year):
     return _make_path(filename, "inn_subsets")    
     
 # not used    
-def from_test_folder(fn):
-    return _make_path(fn, dir_type='test')    
+# def from_test_folder(fn):
+#     return _make_path(fn, dir_type='test')    

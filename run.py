@@ -4,8 +4,11 @@ from rows import Dataset
 
 make_dirs()
 
-for year in VALID_YEARS:
-     RawDataset(year).download().unrar()
-     Dataset(year).to_csv(force=False) 
+df = dict()
 
-df = Dataset(2012).read_df()
+for year in VALID_YEARS:
+    RawDataset(year).download().unrar()
+    Dataset(year).to_csv(force=False)
+
+for year in VALID_YEARS:
+    df[year] = Dataset(year).read_df()

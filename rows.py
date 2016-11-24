@@ -73,7 +73,7 @@ def make_tuples(row, k=K):
 def get_preset_index():
     """Get index for slicing data columns."""
     _, b = make_tuples(COLUMNS)
-    return [i for i,x in enumerate(b) if x in RENAMER.keys()]
+    return [COLUMNS.index(k) for k in RENAMER.keys()]
 
 PRESET_INDEX=get_preset_index()
 
@@ -225,7 +225,7 @@ def dequote(name):
        title = name
     return org, title.strip() 
 
-# output csv file 
+# output to csv file 
 
 @print_elapsed_time
 def to_csv(path, stream, cols=None):    
@@ -239,8 +239,7 @@ def to_csv(path, stream, cols=None):
     return path     
 
 def to_csv2(path, gen):
-    return to_csv(path, gen, cols=get_colnames())    
-    
+    return to_csv(path, gen, cols=get_colnames()) 
 
 def save(year):
     gen = pipe(emit_rows(year))            
@@ -254,7 +253,6 @@ def custom_df_reader(file):
         # dtype on all columns shortens reading time (from 120 sec to 87 sec on my machine)        
         dtype_dict=get_colname_dtypes()        
         return pd.read_csv(file, dtype=dtype_dict)
-        # todo: check if Column 11 mixed types error is reproduced https://github.com/epogrebnyak/data-rosstat-boo-2013/issues/4
      else:
         raise FileNotFoundError(file)
         
@@ -271,6 +269,9 @@ class Dataset():
             gen=pipe(emit_rows(self.year))            
             print ("Saving %s dataset..." % self.year)        
             to_csv2(self.df_csv, gen) 
+        else:
+            print("""Dataset for year {} already saved:""".format(self.year),
+                 self.df_csv, "\n")
 
     @print_elapsed_time    
     def read_df(self): 
@@ -300,23 +301,3 @@ if __name__=="__main__":
     year=2015
     gen=islice(emit_rows(year, ['3435900517']), n, n+1)
     print(next(gen))
-    
-    #Dataset(2015).save()
-    #df = Dataset(2015).read_df()
-    
-    
-    #import random         
-    #for year in config.VALID_YEARS:
-        #assert 1 == save(year)        
-    #    n = random.randint(1, 1000)
-    #    gen = islice(emit_rows(year), n, n+1)
-    #    print(next(gen))
-    
-        
-#todo:
-# delete unused files
-# make one file? less files? common.py + columns.py
-# tests to test_rows.py
-# change file structure at config.py        
-# test resulting frames
-# parser

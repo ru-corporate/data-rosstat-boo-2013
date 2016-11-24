@@ -33,7 +33,7 @@ def read_dataset(year):
 #    return os.path.join(FOLDERS['user_slices'], filename) 
     
 ## проверка АвтоВАЗ
-#vaz = df[df.inn == 6320002223]
+#vaz = df[df.inn == '6320002223']
 #assert (vaz.sales == 175152000).all()
 
 @print_elapsed_time    

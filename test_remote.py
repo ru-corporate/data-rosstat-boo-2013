@@ -14,9 +14,11 @@ def test_config_folders():
 def test_download_and_unrar():
     for year in VALID_YEARS:
         if year == 2015:
-           fn = RawDataset(year).download().unrar()
-           assert os.path.exists(fn)
+           fn1 = RawDataset(year).download().unrar()
+           fn2 = RawDataset(year).get_filename()
+           assert fn1 == fn2  
+           assert os.path.exists(fn1)
 
 def test_rar_content():    
-    for fn in [RawDataset(year).rar_content() for year in VALID_YEARS]:
+    for fn in [RawDataset(year)._rar_content() for year in VALID_YEARS]:
         assert isinstance(fn, str) 
