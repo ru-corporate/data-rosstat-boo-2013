@@ -8,7 +8,7 @@ df = dict()
 
 for year in VALID_YEARS:
     RawDataset(year).download().unrar()
-    Dataset(year).to_csv(force=False)
+    Dataset(year).to_csv(force=True)
 
 for year in VALID_YEARS:
     df[year] = Dataset(year).read_df()
