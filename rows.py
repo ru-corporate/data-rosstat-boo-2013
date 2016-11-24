@@ -104,13 +104,21 @@ def emit_raw_dicts(year):
 
 def filter_by_inn(gen, inn_list):
     """Yield rows where INN is in *inn_list*."""
-    for row in gen:
+    for row in pipe(gen):
         inn = row['inn']
-        while inn_list:
-            if inn in inn_list:
-                print("Found INN: ", inn)
-                inn_list.pop(inn_list.index(inn))
+        #while inn_list:
+        if inn in inn_list:
+                print("Found INN:", inn)
+                inn_list.pop(inn_list.index(inn))                
+                print("Remaining INNs:", len(inn_list))                
                 yield row
+    to_csv("not_found.txt", inn_list)               
+                
+                
+                
+                
+                
+assert 1 == next(filter_by_inn(iter([{'inn':1}]), [1,2]))['inn']
                 
 def emit_rows(year,inn_list=[]):
     """Emit parsed rows by year as lists."""
@@ -243,10 +251,10 @@ class Dataset():
         self.inn_list = []
         self.msg = "Saving %s dataset..." % self.year
     
-    def use_inn_filtering(self): 
-        self.output_csv = config.make_path_inn_csv(year)
+    def use_inn(self): 
+        self.output_csv = config.make_path_inn_csv(self.year)
         self.inn_list = self._get_inn_list()
-        self.msg = "Saving %s dataset with INN filter......" % self.year
+        self.msg = "Saving %s dataset with INN filter..." % self.year
         return self
 
     def _get_inn_list(self):    
@@ -265,6 +273,7 @@ class Dataset():
         else:
             print('Dataset for year {} already saved as '.format(self.year),
                      self.output_csv, "\n")
+        return self
 
     @print_elapsed_time    
     def read_df(self): 
@@ -275,24 +284,6 @@ def nth(year, n=0, func=emit_dicts):
         return next(islice(func(year),n,n+1))
         
 if __name__=="__main__":       
-    print nth(2015)
-
-    TEST_YEAR = 2015
-    POS = 0 
-    
-    def getter(func, n=0, year=TEST_YEAR):
-        return next(islice(func(year),n,n+1))       
-    
-    raw_row = getter(emit_raw_rows,POS)
-    raw_dict = getter(emit_raw_dicts,POS)
-    assert raw_dict['1600'] == raw_dict['1700']
-    
-    parsed_row = getter(emit_rows,POS)
-    parsed_dict = getter(emit_dicts,POS)
-    
-    d=parsed_dict
-    assert d['ta'] == d['ta_fix']+d['ta_nonfix']
-    assert d['tp'] == d['tp_cap']+d['tp_short']+d['tp_long']
-    assert d['ta'] == d['tp'] 
-    
-    assert parsed_dict == next(__full_transform__(iter([raw_row]), year=TEST_YEAR))
+    #a = islice(Dataset(2015).use_inn()._get_stream(),0,10)
+    #next(a)
+    d = Dataset(2015).use_inn().to_csv()

@@ -7,8 +7,15 @@ make_dirs()
 df = dict()
 
 for year in VALID_YEARS:
-    RawDataset(year).download().unrar()
-    Dataset(year).to_csv(force=True)
+    #RawDataset(year).download().unrar()
+    #Dataset(year).to_csv(force=True)
+    pass
 
 for year in VALID_YEARS:
-    df[year] = Dataset(year).read_df()
+    #df[year] = Dataset(year).read_df()
+    pass
+    
+Dataset(2015).use_inn_filtering().to_csv()   
+    
+    
+    
