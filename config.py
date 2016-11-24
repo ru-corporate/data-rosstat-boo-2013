@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+"""Directory structure and other configuration."""
+
 import os
 import platform
 
@@ -41,9 +43,7 @@ def make_dirs():
     # create directories if not exist
     for directory in FOLDERS.values():
         if not os.path.exists(directory):
-            os.makedirs(directory)
-
-make_dirs()            
+            os.makedirs(directory)       
             
 # local filename creation functions
 def _make_path(filename, dir_type):
@@ -65,7 +65,3 @@ def get_inn_list_path():
 def make_path_inn_csv(year):
     filename = "inn_subset_" + str(year) + ".csv"
     return _make_path(filename, "inn_subsets")    
-    
-# not used    
-# def from_test_folder(fn):
-#     return _make_path(fn, dir_type='test')    

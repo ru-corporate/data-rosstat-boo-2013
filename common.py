@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
+"""Common/ generic functions for other modules (decorators and error logger)."""
 
 import time
 import config
 
-def print_elapsed_time(f):
+def print_elapsed_time(foo):
     """Print execution time for *f* to screen."""
     def wrapper(*args, **kwargs):
         start_time = time.time()
-        result = f(*args, **kwargs)       
+        result = foo(*args, **kwargs)       
         print("Time elapsed: %.1f seconds" % (time.time()-start_time))         
         return result
     return wrapper
-
     
 class GenericLogger():
     """Log errors while reading rows."""
@@ -27,6 +27,7 @@ class GenericLogger():
             print(*msg)
             print(*msg, file=f)        
 
+            
 class Logger(GenericLogger):
     """Logger with predefined filename for error stream."""
 
@@ -36,7 +37,7 @@ class Logger(GenericLogger):
 
 
 class Progress():
-    """Minimal progress spinner. 
+    """Minimal progress 'spinner'. 
        See also <http://docs.astropy.org/en/v0.2/_generated/astropy.utils.console.Spinner.html#>
     """
     
@@ -60,6 +61,7 @@ class Progress():
         pass
 
 def pipe(gen):
+    """Decorate *gen* with progress messages."""
     with Progress() as prog:
         for item in gen:
             prog.next()

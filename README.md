@@ -18,60 +18,35 @@ Source data
  -- several rows are corrupted in source files (see "Known bugs" below)
  
 
-Entry points
+User files
 ============
-```python
-from reader import RawDataset
-from slicer import Dataset
-
-RawDataset(year).save_clean_copy() 
-# Download, unrar, parse and save clean dataset as local CSV file
-
+```
 Dataset(year).create_files() 
+Dataset(year).info() 
 #Saves a family of slices from Rosstat dataset as csv/xlsx files:
 # boo_*.csv - all companies, selected variables (~300 Mb)
 # main_*.csv - excludes 'micro' enterprises (sales < 120 mln rub), but includes companies with assets above 30(?) mln
 # bln_*.csv, bln_*.xlsx - companies above 1 bln rub in sales
-
-# check if os.path.exists()
-# raise FilePathError: file not found. Use RosstatCSV
-
 ```
 
 Usage
 =====
-Use following code to obtain 2012 dataset:
+Use code below to obtain 2012 dataset. Supported years are 2012-2015
+but older files are smaller, try running 2012 or 2013 before 2015.
 
 ```python
-from rows import Dataset
-df=Dataset(2012).read_df() 
-```
-
-If you want more control over steps of the process:
-
-```python
-from config import make_dirs
 from remote import RawDataset
 from rows import Dataset
 
-make_dirs()
-
-# supported years are 2012, 2013, 2014 and 2015
-# but older files are smaller, try running 2012 or 2013 first
-year = 2013 
-RawDatatset(2013).download().unpack()
-Dataset(2013).to_csv()
-df_2013 = Dataset(2013).read_df()
+year = 2012 
+RawDatatset(year).download().unpack()
+Dataset(year).to_csv()
+df = Dataset(year).read_df()
 ```
-Note: you will be operating with large datasets, creating files may take 2-3 mins on a fast computer 
-and much longer on laptops and older machines. Consider downloading smaller datsets [here], if this code 
-hangs on your machine.
 
-Prepare directories
--------------------
-```python
-from config import make_dirs
-make_dirs()```
+Note: you will be operating with large datasets, creating files may take 2-3 mins on a fast computer 
+and much longer on laptops and older machines. Consider downloading smaller datasets [here], if this code 
+hangs on your machine.
 
 Download and unrar raw csv
 --------------------------
@@ -79,9 +54,9 @@ Download and unrar raw csv
 - Unpack raw csv from rar file  
 
 ```python 
-from remote import RawDatatset
-RawDatatset(2013).download().unpack()
-path = RawDatatset(2013).get_filename()
+from remote import RawDataset
+RawDataset(2012).download().unpack()
+raw_csv_path = RawDataset(2012).get_filename()
 ```
 
 Make local csv file  
@@ -102,70 +77,114 @@ csv_path = Dataset(2013).to_csv()
 
 Read local csv file as pandas dataframe
 ---------------------------------------
-- Read dataframe using read_csv with dtypes (loads file faster)
+- Read dataframe using ```pd.read_csv``` with dtypes (it loads file faster)
 
 ```python  
-from rows import Dataset
-df_2013 = Dataset(2013).read_df()
+df = Dataset(2012).read_df()
 ```
 
 Subset dataset by INN
 ----------------------
-- make subset by INN field  
+```python  
+Dataset(2012).add_inn_filtering().to_csv()
+```
 
-Content notes:
-==============
-- Определения микро, малых и средних предприятий по выручке: [(60-400-1000)](https://rg.ru/2015/07/17/vyruchka-site-dok.html), 
-[2015 (120-800-2000)](https://rg.ru/2013/02/15/tovar-dok.html), [комментарий](http://glavkniga.ru/situations/k500967).
-- Как изменение критерия 'ММСП' в 2015 году повлияло на состав этих групп?
-- Определения по численности (в ред. Федерального закона от [23.06.2016 N 222-ФЗ](http://www.consultant.ru/document/cons_doc_LAW_52144/)): (а) от ста одного до двухсот пятидесяти человек для средних предприятий; (б) до ста человек для малых предприятий; среди малых предприятий выделяются микропредприятия - до пятнадцати человек.
+
+"Альбом российской корпоративной отчетности-2015"
+=================================================
+- as PDF file / as article
+- title:
+ - "CMF/HSE. Russian corporations 2015: large dataset overview."
+ - "CMF/HSE. Альбом российской корпоративной отчетности-2015."
+- corresponding address
+- data source
+  - Rosstat
+  - who provides commercial interfaces. list-companies.
+- coverage 
+  - % as of total, % as of macro
+  - what we like about reporting 
+  - what we do not like about reporting
+- interesting facts
+  - by industry
+  - high-growth companies
+  - ...
+  - in focus: Sports and cinema
+- proposed research areas
+- classroom topics
+- advertising:
+  - in HSE
+  - Rosstat
+  - SPARK, etc
+  - facebook/VK
+
+Groups of repos
+===============
+- parser 
+- user datasets
+- excercises
+- album
 
 Development 
 ===========
 
 Current development branch
 --------------------------
-[simplified_stream](https://github.com/epogrebnyak/data-rosstat-boo-2013/tree/simplified_stream)
+[stream_dicts](https://github.com/epogrebnyak/data-rosstat-boo-2013/tree/stream_dicts)
 
 - uses funcs over generators, very slim implementation
 - no intermediate csv files, just raw and final csv
+- based on dicts, it is a bit slower, but columns are on their places
 
 Not todo
 -------
+- error messages in is_filter
+- generate documentation
 - save everything in SQL database (sqlite/mysql) using sqlalchemy
-- better backend to provide this data to students, AWS S3 maybe (large files now saved to git repo, not nice). 
-- review: make csv reader/writer work in chunks (after profiler, tests)
-- stricter typing in read_csv(...) using 'dtype'
-- '--force' option to overwrite files
+- use profiler to analyse program <https://pymotw.com/2/profile/>
+- provide R/Pandas reader funcs for the files as <dataset.r>, <dataset.py>
+- as package 
+- chunks
+  - review: make csv reader/writer work in chunks (after profiler, tests)
+  - make <slicer.py> work in chunks, maybe it is faster rather than downloading all data to memory. use existing code from S3.
 
 Considering
 -----------
-- make <slicer.py> work in chunks, maybe it is faster rather than downloading all data to memory. use existing code from S3.
-- review: https://github.com/epogrebnyak/data-rosstat-boo-2013/pull/3
-- use profiler to analyse program <https://pymotw.com/2/profile/>
+- better backend to provide this data to students, AWS S3 maybe (large files now saved to git repo, not nice) + AWS library
 - zip sliced CSVs on the fly, do not store main CSVs itself  in <slicer.py> https://docs.python.org/3/library/zipfile.html
-- provide R/Pandas reader funcs for the files as <dataset.r>, <dataset.py>
 
 Todo
 ----
-- allow subsetting CSV by list of INN keys (implemented in other repo)
-- make ```config.make_dirs()``` work in the background
+- reports album
+- move notes.md
+
+Slicing:
+- test right companies as largest 
+- slice bln and larger companies 
+- Dataset(year).info()
+
+Data import with inn:
+- test subsetting CSV by list of INN keys 
+- provide good inn.txt example
+- exclide inn.txt from git_ignore
 
 Todo later
 ----------
-- saving clean csv does not have progress bar
-- print list of variables
+- print list of variables / put on sheet
 - requirement.txt to allow replicate code 
-- unit tests including peek 
+- more unit tests
 
 Done or scrapped
 ----------------
+- review: https://github.com/epogrebnyak/data-rosstat-boo-2013/pull/3
+- stricter typing in read_csv(...) using 'dtype'
+- '--force' option to overwrite files
+- saving clean csv does not have progress bar
 - review: [change assert to Exception](https://github.com/epogrebnyak/data-rosstat-boo-2013/blob/csv_reader/columns.py#L800
 - job sequencing using RosstatCSV().downloаd().unrar().save_clean_copy() and Dataset(year).create_files() 
 - order of [module imports](http://stackoverflow.com/questions/22722976/import-order-coding-standard)
 - provide data import examples in README.md (see above)
 - separate 'rosstat' and 'data' directory + def get_path(filename, dir_type): in config.py
-
+- make ```config.make_dirs()``` work in the background
 
 Known issues
 ============

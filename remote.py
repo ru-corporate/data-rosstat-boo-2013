@@ -1,9 +1,11 @@
-"""Download + unpack CSV file."""
+# -*- coding: utf-8 -*-
+"""Download and unpack CSV file from Rosstat web site."""
 
 import requests
 import os
 import subprocess
 
+from config import make_dirs
 from config import get_raw_csv_folder, get_rar_folder
 from config import UNPACK_RAR_EXE, URL
 
@@ -18,8 +20,8 @@ def in_raw_csv_folder(filename):
 
 class RawDataset():   
 
-    # todo: why aren't folders created here?
-    # config.make_dirs()       
+    # question: ok for folders to be created here?
+    make_dirs()       
 
     def __init__(self, year):
         self.year=year
@@ -56,7 +58,7 @@ class RawDataset():
         ]) 
         
     def _rar_content(self):
-        """List single filename stored in RAR archive."""    
+        """Return single filename stored in RAR archive."""    
         return subprocess.check_output([
             UNPACK_RAR_EXE,
             'lb',self.rar_path]).decode("utf-8").strip()    
