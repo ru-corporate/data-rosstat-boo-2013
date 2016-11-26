@@ -89,6 +89,15 @@ def csv_stream(filename, enc='utf-8', sep=','):
       for row in spamreader:
          yield row     
 
+def _emit_raw_rows(year):
+    """Emit raw CSV rows by year."""
+    fn = RawDataset(year).get_filename()
+    fmt = dict(enc='windows-1251', sep=";")
+    return csv_stream(fn, **fmt)   
+
+
+
+
 def emit_raw_rows(year):
     """Emit raw CSV rows by year."""
     fn = RawDataset(year).get_filename()
@@ -143,6 +152,26 @@ def __full_transform__(gen, year):
     new_columns = get_colnames()    
     as_ordered_dict = lambda r: OrderedDict(zip(new_columns,r))
     return map(as_ordered_dict, lists)
+    
+class Stream():
+    
+    def __init__(self, gen, year):
+        self.gen=gen
+        self.year=year
+        self.incoming_columns=COLUMNS
+        self.new_columns=get_colnames()
+    def filtered_rows(self):
+        return filter(is_valid, self.gen)        
+    def filtered_dicts(self):
+        as_dict = lambda row: dict(zip(self.incoming_columns,row)) 
+        return map(as_dict, self.filtered_rows())
+    def parsed_rows(self):
+        p = lambda d: parse_row(d, self.year)
+        return map(p, self.filtered_dicts())
+    def parsed_ordered_dicts(self):
+        as_ordered_dict = lambda r: OrderedDict(zip(self.new_columns,r))
+        return map(as_ordered_dict, self.parsed_rows())
+    
     
 # row transformations
 

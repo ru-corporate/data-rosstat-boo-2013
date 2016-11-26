@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """Testing modules."""
 
-from rows import dequote, okved3, EMPTY
-from rows import emit_rows, emit_dicts, emit_raw_rows, emit_raw_dicts, __full_transform__
+from reader import dequote, okved3, EMPTY
+from reader import emit_rows, emit_dicts, emit_raw_rows, emit_raw_dicts, __full_transform__
 from itertools import islice
     
 #
