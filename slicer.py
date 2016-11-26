@@ -35,6 +35,14 @@ def read_dataset(year):
 ## проверка АвтоВАЗ
 #vaz = df[df.inn == '6320002223']
 #assert (vaz.sales == 175152000).all()
+    
+## Каргилл
+## http://kommersant.ru/doc/2735389   
+#
+## Русполимет
+#pd = parsed(2015, 25471)    
+#pprint(pd)
+    
 
 @print_elapsed_time    
 def adjust_to_mln(df):

@@ -54,7 +54,7 @@ def get_parsed_colnames():
 def get_colname_dtypes():
     """Return types correspoding to get_colnames(). 
        Used to speed up CSV import in custom_df_reader(). """
-    dtype_dict = {k:int for k in get_colnames()}
+    dtype_dict = {k:int for k in get_parsed_colnames()}
     string_cols = ['date', 'org', 'title', 'region', 'inn',
                    'okpo', 'okopf', 'okfs']     
     dtype_dict.update({k:str for k in string_cols})

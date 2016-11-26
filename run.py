@@ -1,21 +1,16 @@
-from config import make_dirs, VALID_YEARS
+from config import VALID_YEARS
 from remote import RawDataset
-from rows import Dataset
+from reader import Dataset, DatasetByINN
 
-make_dirs()
+
+for year in VALID_YEARS:
+    RawDataset(year).download().unrar()
+    Dataset(year).to_csv() #to overwrite use .csv(force=True)
+
 
 df = dict()
-
 for year in VALID_YEARS:
-    #RawDataset(year).download().unrar()
-    #Dataset(year).to_csv(force=True)
-    pass
+    df[year] = Dataset(year).read_df()
 
-for year in VALID_YEARS:
-    #df[year] = Dataset(year).read_df()
-    pass
     
-Dataset(2015).use_inn_filtering().to_csv()   
-    
-    
-    
+DatasetByINN(2015).to_csv()   

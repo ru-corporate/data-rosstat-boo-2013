@@ -62,6 +62,9 @@ def make_path_parsed_csv(year):
 def get_inn_list_path():
     return _make_path('inn.txt', "inn_subsets") 
     
-def make_path_inn_csv(year):
+def make_path_for_output_inn_csv_file(year):
     filename = "inn_subset_" + str(year) + ".csv"
     return _make_path(filename, "inn_subsets")    
+    
+def make_path_for_inn_not_found_csv_file():
+    return _make_path('not_found.txt', "inn_subsets") 
