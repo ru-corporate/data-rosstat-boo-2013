@@ -130,7 +130,7 @@ class Dataset():
     def __init__(self, year):
         self.year = year
         self.output_csv = config.make_path_parsed_csv(year)
-        self.msg = "Saving %s dataset..." % self.year
+        self.msg = "\nSaving %s dataset..." % self.year
 
     def __colnames__(self):
         return get_parsed_colnames()
@@ -147,7 +147,6 @@ class Dataset():
         else:
             print('Dataset for year {}'.format(self.year),
                   'already saved as', self.output_csv, "\n")
-        return self
 
     @print_elapsed_time
     def read_df(self):
@@ -185,7 +184,7 @@ def filter_by_inn(gen, inn_list):
 class DatasetByINN(Dataset):
 
     @staticmethod
-    def __mask_csv_lines__(gen):
+    def __extract_inns__(gen):
         return list(r[0].replace("\ufeff", "") for r in gen 
                     if not r[0].startswith("#"))
 
@@ -193,8 +192,8 @@ class DatasetByINN(Dataset):
         self.year = year
         self.output_csv = config.make_path_for_output_inn_csv_file(self.year)
         inn_path = config.get_inn_list_path()
-        self.inn_list = self.__mask_csv_lines__(csv_stream(inn_path))
-        self.msg = "Saving %s dataset with INN filter..." % self.year
+        self.inn_list = self.__extract_inns__(csv_stream(inn_path))
+        self.msg = "\nSaving %s dataset with INN filter..." % self.year
 
     def __get_stream__(self):
         return pipe(emit_rows_by_inn(self.year, inn_list=self.inn_list))
