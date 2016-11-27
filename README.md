@@ -8,7 +8,7 @@
 5. [Экранная форма запроса годовой отчтености](http://www.gks.ru/accounting_report)
 6. Данные о статусе юридического лица:
   - [Единый реестр...](https://bankrot.fedresurs.ru/OrganizationCard.aspx?ID=B4BB9951590C245AD9440AC13999142A)
-  - [Картотека арбитражных дел-](http://kad.arbitr.ru)
+  - [Картотека арбитражных дел](http://kad.arbitr.ru)
   - [Вестник государственной регистрации](http://www.vestnik-gosreg.ru/?a=sv_2_0:9;s:3)
 
 Наборы данных
