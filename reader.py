@@ -66,10 +66,6 @@ def csv_stream(filename, enc='utf-8', sep=','):
             yield row
 
 
-def as_dict(columns, row):
-    return OrderedDict(zip(columns, row))
-
-
 def emit_raw_rows(year):
     """Emit raw rows by year."""
     fn = RawDataset(year).get_filename()
@@ -79,7 +75,9 @@ def emit_raw_rows(year):
 
 
 def emit_raw_dicts(year):
-    columns = emit_raw_colnames()
+    columns = emit_raw_colnames()    
+    # lambda func allow to make inline fucntion with one arguement
+    as_dict = lambda row: OrderedDict(zip(columns, row))
     return map(as_dict, emit_raw_rows(year))
 
 
@@ -90,6 +88,8 @@ def emit_rows(year):
 
 def emit_dicts(year):
     columns = emit_parsed_colnames()
+    # lambda func allow to make inline fucntion with one arguement
+    as_dict = lambda row: OrderedDict(zip(columns, row))
     return map(as_dict, emit_rows(year))
 
 

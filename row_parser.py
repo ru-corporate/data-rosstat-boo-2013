@@ -5,6 +5,7 @@ Created on Sat Nov 26 13:37:16 2016
 @author: Евгений
 """
 from inspect_columns import Columns
+from numpy import int64 as INT_TYPE
 
 EMPTY = int('0')
 QUOTE_CHAR = '"'
@@ -26,6 +27,11 @@ def get_adjust_func(unit):
     else:
         raise ValueError("Unit not supported: " + unit)
 
+def rub_to_thousand(x):
+    return int(round(0.001*float(x)))
+
+def mln_to_thousand(x):
+    return 1000*int(x)
 
 def parse_row(rowd):
     """Return modified *rowd* dictionary."""
@@ -36,12 +42,26 @@ def parse_row(rowd):
     region = rowd['inn'][0:2]
     # warning: 'date' may not be in rowd.keys() in some datasets
     date_reviewed = rowd['date']
+    
+    multipliers = {'384': 0,'383': -3,'385': 3}
+    m = multipliers[rowd['unit']]    
+    
     text = [rowd['year'], date_reviewed, ok1, ok2, ok3,
             org, title, region, rowd['inn'],
-            rowd['okpo'], rowd['okopf'], rowd['okfs']]
+            rowd['okpo'], rowd['okopf'], rowd['okfs'],
+            rowd['unit'], m]
 
     # assemble new data cols
-    func = get_adjust_func(rowd['unit'])
+    #func = get_adjust_func(rowd['unit'])
+    #data = [func(rowd[k]) for k in Columns.DATACOLS]              
+        
+    func = lambda x: x    
+    if rowd['unit'] == '383':
+        func = rub_to_thousand        
+    if rowd['unit'] == '385':
+        func = mln_to_thousand        
+    
+
     data = [func(rowd[k]) for k in Columns.DATACOLS]
 
     return text+data
@@ -51,15 +71,17 @@ def get_parsed_colnames():
     """Return colnames corresponding to parse_row(). """
     return ['year', 'date', 'ok1', 'ok2', 'ok3',
             'org', 'title', 'region', 'inn',
-            'okpo', 'okopf', 'okfs'] + Columns.RENAMED_DATACOLS
+            'okpo', 'okopf', 'okfs',
+            'unit', 'nat_exp'] + Columns.RENAMED_DATACOLS
 
 
 def get_colname_dtypes():
     """Return types correspoding to get_colnames().
        Used to speed up CSV import in custom_df_reader(). """
-    dtype_dict = {k: int for k in get_parsed_colnames()}
+    dtype_dict = {k: numpy.int64 for k in get_parsed_colnames()}
     string_cols = ['date', 'org', 'title', 'region', 'inn',
-                   'okpo', 'okopf', 'okfs']
+                   'okpo', 'okopf', 'okfs',
+                   'unit']
     dtype_dict.update({k: str for k in string_cols})
     return dtype_dict
 
