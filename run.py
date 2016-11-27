@@ -12,5 +12,5 @@ df = dict()
 for year in VALID_YEARS:
     df[year] = Dataset(year).read_df()
 
-    
-DatasetByINN(2015).to_csv()   
+
+DatasetByINN(2015).to_csv()
