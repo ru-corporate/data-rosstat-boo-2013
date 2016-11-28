@@ -66,9 +66,3 @@ def make_path_parsed_csv(year):
     filename = "parsed_" + str(year) + ".csv"
     return os.path.join(FOLDERS["csv"], filename)
 
-_ = Dataset(2015)
-for path_func in [get_subset_root_folder, get_raw_csv_folder, get_rar_folder]:
-    assert os.path.exists(path_func())
-
-for file in [make_path_parsed_csv(year) for year in VALID_YEARS]:
-    assert isinstance(file, str)

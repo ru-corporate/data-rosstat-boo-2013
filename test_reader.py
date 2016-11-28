@@ -3,7 +3,7 @@
 
 from itertools import islice
 from reader import emit_rows, emit_dicts, emit_raw_rows, emit_raw_dicts
-from reader import filter_by_inn, emit_rows_by_inn
+from reader import inn_mask, emit_rows_by_inn
 from reader import DatasetByINN
 
 #
@@ -11,7 +11,19 @@ from reader import DatasetByINN
 #
 
 def test_inn_filter():
-    assert 1 == next(filter_by_inn(iter([{'inn':1}]), [1,2]))['inn']
+    gen = [{'inn': 0}, {'inn': 10}, {'inn': 20}, {'inn': 30}]
+    incs = [0,10]
+    exs = [20,30]
+    
+    assert [] == list(inn_mask([10],[10]).apply(gen))     
+    assert [{'inn': 0}] == list(inn_mask([0, 10],[10]).apply(gen))  
+    
+    a = list(inn_mask(incs,exs).apply(gen))     
+    b = list(inn_mask(incs).apply(gen))
+    c = list(inn_mask(None,exs).apply(gen))   
+    assert a == b
+    assert b == c
+    
 
 
 def test_emitters():
