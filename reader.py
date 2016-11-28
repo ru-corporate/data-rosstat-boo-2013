@@ -130,7 +130,6 @@ class Dataset():
     def __init__(self, year):
         self.year = year
         self.output_csv = config.make_path_parsed_csv(year)
-        self.msg = "\nSaving %s dataset..." % self.year
 
     def __colnames__(self):
         return get_parsed_colnames()
@@ -140,13 +139,14 @@ class Dataset():
 
     def to_csv(self, force=False):
         if not os.path.exists(self.output_csv) or force is True:
-            print(self.msg)
+            msg = "\nSaving %s dataset..." % self.year            
+            print(msg)
             to_csv(path=self.output_csv,
                    stream=self.__get_stream__(),
                    cols=self.__colnames__())
         else:
-            print('Dataset for year {}'.format(self.year),
-                  'already saved as', self.output_csv, "\n")
+            print('{} dataset'.format(self.year),
+                  'already saved as:', self.output_csv, "\n")
 
     @print_elapsed_time
     def read_df(self):
@@ -157,43 +157,117 @@ class Dataset():
 #
 # filter by INN
 #
-def emit_rows_by_inn(year, inn_list):
+
+
+def read_inns(path):
+    gen = csv_stream(path)
+    return list(r[0].replace("\ufeff", "") for r in gen 
+                if not r[0].startswith("#"))
+
+class SubsetLocation():
+   
+    ROOT = config.get_subset_root_folder()
+    SUBSETS = ['test1']     
+
+    def __init__(self, year, tag):
+        
+        if tag not in self.SUBSETS:
+            msg = "\nSubset name not allowed: " + tag + \
+                  "\nAllowed name(s): " + ", ".join(self.SUBSETS)
+            raise ValueError(msg)
+            
+        folder = os.path.join(self.ROOT, tag)
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+            
+        def in_dir(fn):    
+            return os.path.join(folder, fn)
+             
+        self.output_csv = in_dir(tag+"_"+str(year)+".csv")
+        include_csv_path = in_dir("include.csv")
+        exclude_csv_path = in_dir("exclude.csv")
+
+        if os.path.exists(include_csv_path):
+            self.includes = read_inns(include_csv_path)
+        else:
+            self.includes = []
+            
+        if os.path.exists(exclude_csv_path):
+            self.excludes = read_inns(exclude_csv_path)
+        else:
+            self.excludes = []            
+
+    def get_inn_lists(self):
+        return self.includes, self.excludes
+
+    def get_output_csv(self):
+        return self.output_csv  
+
+
+class Subset(Dataset):
+    
+    def __init__(self, year, tag):
+        self.year=year    
+        loc = SubsetLocation(year, tag)
+        self.output_csv=loc.get_output_csv()
+        self.includes, self.excludes = loc.get_inn_lists()
+            
+    def __get_stream__(self):
+        return pipe(emit_rows_by_inn(self.year, include_inns=self.includes,
+                                                exclude_inns=self.excludes))
+                                                
+    def include(self, incs):
+        self.includes = incs  
+        return self                                        
+    
+    def exclude(self, exs):
+        self.excludes = exs
+        return self
+
+def emit_rows_by_inn(year, include_inns, exclude_inns):
     gen = emit_raw_dicts(year)
-    gen = filter_by_inn(gen, inn_list)
+    print("INNs to include:", include_inns)
+    print("INNs to exclude:", exclude_inns)
+    gen = inn_mask(include_inns, exclude_inns).apply(gen) 
     return map(parse_row, gen)
 
-
-def filter_by_inn(gen, inn_list):
-    """Yield rows where INN is in *inn_list*."""
-    for row in pipe(gen):
+class inn_mask():
+    
+    def ok_to_include(self, row):
         inn = row['inn']
-        if inn in inn_list:
+        if inn in self.inns:
             print("Found INN:", inn)
-            yield row
-            # halt if inn_list is exhausted
-            inn_list.pop(inn_list.index(inn))
-            if inn_list:
-                print("Remaining INNs:", len(inn_list))
-            else:
-                break
-    # save inns not found in dataset
-    fn = config.make_path_for_inn_not_found_csv_file()
-    to_csv(fn, [[x] for x in inn_list])
-
-
-class DatasetByINN(Dataset):
-
-    @staticmethod
-    def __extract_inns__(gen):
-        return list(r[0].replace("\ufeff", "") for r in gen 
-                    if not r[0].startswith("#"))
-
-    def __init__(self, year):
-        self.year = year
-        self.output_csv = config.make_path_for_output_inn_csv_file(self.year)
-        inn_path = config.get_inn_list_path()
-        self.inn_list = self.__extract_inns__(csv_stream(inn_path))
-        self.msg = "\nSaving %s dataset with INN filter..." % self.year
-
-    def __get_stream__(self):
-        return pipe(emit_rows_by_inn(self.year, inn_list=self.inn_list))
+            return True
+        else:
+            return False
+            
+    def ok_to_exclude(self, row):
+        inn = row['inn']
+        if inn in self.inns:
+            print("Rejected INN:", inn)
+            return False
+        else:
+            return True      
+    
+    def __init__(self, il=None, el=None):
+        if el and il:
+            self.inns = [x for x in il if x not in el]            
+            self.f = self.ok_to_include
+        elif il:
+            self.inns = il
+            self.f = self.ok_to_include
+        elif el:
+            self.inns = el
+            self.f = self.ok_to_exclude
+        else:
+            raise ValueError() 
+            
+    def apply(self, gen):
+        return filter(self.f, pipe(gen))
+      
+if __name__ == "__main__":
+     Subset(2015, 'test1').to_csv()
+     ITEMS = ['77']
+     Subset(2015, 'test1').include(ITEMS).includes == ITEMS
+     Subset(2015, 'test1').exclude(ITEMS).excludes == ITEMS
+    

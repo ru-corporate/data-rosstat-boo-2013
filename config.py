@@ -22,58 +22,53 @@ URL = {2012: "http://www.gks.ru/opendata/storage/7708234640-bdboo2012/data-20161
 VALID_YEARS = [2012, 2013, 2014, 2015]
 
 # folder tree for csv's and archives
-FOLDERS = dict(rar          = os.path.join("data", "temp", "rar")
+FOLDERS = dict(rar        = os.path.join("data", "temp", "rar")
            , raw_csv      = os.path.join("data", "temp", "raw_csv")
            , csv          = os.path.join("data", "csv")
            , error_log    = os.path.join("data", "temp", "errors")
-           , inn_subsets  = os.path.join("data", "inn")
-           , test         = os.path.join("data", "temp", "test")
-           , user_slices  = os.path.join("data", "user")
+           #, test         = os.path.join("data", "temp", "test")
+           , subset       = os.path.join("data", "subset")
                )
 
+# local filename creation functions
+def _make_path(filename, dir_type):
+    return os.path.join(FOLDERS[dir_type], filename)
 
+    
+def get_subset_root_folder():
+    return FOLDERS['subset']
+
+    
 def get_raw_csv_folder():
     """Path to raw csv folder"""
     return FOLDERS['raw_csv']
 
-
+    
 def get_rar_folder():
     """Path to raw csv folder"""
     return FOLDERS['rar']
 
-
+    
 def make_dirs():
     """Create directories from FOLDERS if they do not exist."""
     for directory in FOLDERS.values():
         if not os.path.exists(directory):
             os.makedirs(directory)
 
-
-# local filename creation functions
-def _make_path(filename, dir_type):
-    return os.path.join(FOLDERS[dir_type], filename)
-
-
 # wrappers for paths creation using year
-def make_path_error_log(year):
-    filename = "errors_{}.txt".format(str(year))
-    return _make_path(filename, "error_log")
+
+#def make_path_error_log(year):
+#    filename = "errors_{}.txt".format(str(year))
+#    return _make_path(filename, "error_log")
 
 
 def make_path_parsed_csv(year):
     filename = "parsed_" + str(year) + ".csv"
-    return _make_path(filename, "csv")
+    return os.path.join(FOLDERS["csv"], filename)
 
+_ = Dataset(2015)
+for path_func in [get_subset_root_folder, get_raw_csv_folder, get_rar_folder]:
+    assert os.path.exists(path_func())
 
-# inn subset
-def get_inn_list_path():
-    return _make_path('inn.txt', "inn_subsets")
-
-
-def make_path_for_output_inn_csv_file(year):
-    filename = "inn_subset_" + str(year) + ".csv"
-    return _make_path(filename, "inn_subsets")
-
-
-def make_path_for_inn_not_found_csv_file():
-    return _make_path('not_found.txt', "inn_subsets")
+for file in [make_path_parsed_csv(year) for year in VALID_YEARS]:
+    assert isinstance(file, str)
