@@ -93,10 +93,6 @@ def emit_dicts(year):
     return map(as_dict, emit_rows(year))
 
 
-def nth(year, n=0, func=emit_dicts):
-        return next(islice(func(year), n, n + 1))
-
-
 #
 # output to csv file, read dataframe functions
 #
@@ -152,6 +148,11 @@ class Dataset():
     def read_df(self):
         print("Reading {} dataframe...".format(self.year))
         return custom_df_reader(self.output_csv)
+        
+    def nth(self, n=0):
+        return next(islice(self.__get_stream__(), n, n + 1))
+        
+            
 
 
 #
@@ -210,25 +211,25 @@ class Subset(Dataset):
         self.year=year    
         loc = SubsetLocation(year, tag)
         self.output_csv=loc.get_output_csv()
-        self.includes, self.excludes = loc.get_inn_lists()
+        self._inc, self._exc = loc.get_inn_lists()
             
     def __get_stream__(self):
-        return pipe(emit_rows_by_inn(self.year, include_inns=self.includes,
-                                                exclude_inns=self.excludes))
+        return pipe(emit_rows_by_inn(self.year, include=self._inc,
+                                                exclude=self._exc))
                                                 
-    def include(self, incs):
-        self.includes = incs  
+    def include(self, inc):
+        self._inc = inc  
         return self                                        
     
-    def exclude(self, exs):
-        self.excludes = exs
+    def exclude(self, ex):
+        self._exc = ex
         return self
 
-def emit_rows_by_inn(year, include_inns, exclude_inns):
+def emit_rows_by_inn(year, include, exclude):
     gen = emit_raw_dicts(year)
-    print("INNs to include:", include_inns)
-    print("INNs to exclude:", exclude_inns)
-    gen = inn_mask(include_inns, exclude_inns).apply(gen) 
+    print("INNs to include:", include)
+    print("INNs to exclude:", exclude)
+    gen = inn_mask(include, exclude).apply(gen) 
     return map(parse_row, gen)
 
 class inn_mask():
@@ -267,7 +268,6 @@ class inn_mask():
       
 if __name__ == "__main__":
      Subset(2015, 'test1').to_csv()
-     ITEMS = ['77']
-     Subset(2015, 'test1').include(ITEMS).includes == ITEMS
-     Subset(2015, 'test1').exclude(ITEMS).excludes == ITEMS
+     z = next(emit_rows(2015))
+
     

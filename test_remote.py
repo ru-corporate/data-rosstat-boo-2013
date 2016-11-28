@@ -3,13 +3,9 @@
 #
 
 import os
-from config import VALID_YEARS, FOLDERS
+from config import VALID_YEARS
 from remote import RawDataset
 
-def test_config_folders():
-    set1 = set(FOLDERS.keys())
-    set2 = set(['rar', 'raw_csv', 'csv', 'error_log', 'inn_subsets', 'test', 'user_slices'])
-    assert set1==set2
 
 def test_download_and_unrar():
     for year in VALID_YEARS:
