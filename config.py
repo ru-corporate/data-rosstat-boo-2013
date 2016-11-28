@@ -25,44 +25,74 @@ VALID_YEARS = [2012, 2013, 2014, 2015]
 FOLDERS = dict(rar        = os.path.join("data", "temp", "rar")
            , raw_csv      = os.path.join("data", "temp", "raw_csv")
            , csv          = os.path.join("data", "csv")
-           , error_log    = os.path.join("data", "temp", "errors")
-           #, test         = os.path.join("data", "temp", "test")
+           , errors       = os.path.join("data", "temp", "errors")
            , subset       = os.path.join("data", "subset")
                )
 
-# local filename creation functions
-def _make_path(filename, dir_type):
-    return os.path.join(FOLDERS[dir_type], filename)
-
-    
-def get_subset_root_folder():
-    return FOLDERS['subset']
-
-    
-def get_raw_csv_folder():
-    """Path to raw csv folder"""
-    return FOLDERS['raw_csv']
-
-    
-def get_rar_folder():
-    """Path to raw csv folder"""
-    return FOLDERS['rar']
-
-    
 def make_dirs():
     """Create directories from FOLDERS if they do not exist."""
     for directory in FOLDERS.values():
         if not os.path.exists(directory):
             os.makedirs(directory)
+               
+class Path():
 
-# wrappers for paths creation using year
+   def __init__(self, filename):
+       self.fn = filename
+    
+   def in_rar(self):
+       """Put file in RAR folder"""
+       # Used in remote.py
+       return os.path.join(FOLDERS['rar'], self.fn)
+       
+   def in_raw_csv(self):
+       """Put file in RAW CSV folder"""
+       # Used in remote.py
+       return os.path.join(FOLDERS['raw_csv'], self.fn)
 
-#def make_path_error_log(year):
-#    filename = "errors_{}.txt".format(str(year))
-#    return _make_path(filename, "error_log")
+      
+class ParsedCSV():
+   def __init__(self, year):
+      fn = "parsed_" + str(year) + ".csv"  
+      self.path = os.path.join(FOLDERS["csv"], fn)             
+   def get_filename(self):
+      return self.path 
 
+      
+class ErrorLog():# not in use   
+   def __init__(year): 
+        filename = "errors_{}.txt".format(str(year))
+        self.path = os.path.join(FOLDERS["errors"], filename)                  
+   def get_filename(self):
+      return self.path 
 
-def make_path_parsed_csv(year):
-    filename = "parsed_" + str(year) + ".csv"
-    return os.path.join(FOLDERS["csv"], filename)
+        
+class Folder():
+     def __init__(self, base, tag):
+        self.folder = os.path.join(base, tag)
+        if not os.path.exists(self.folder):
+            os.makedirs(self.folder)
+     def get_path(self, fn):    
+            return os.path.join(self.folder, fn)
+            
+class SubsetLocation():
+   
+    ROOT = FOLDERS['subset']
+    SUBSETS = ['test1']
 
+    def check(self, tag):
+        if tag not in self.SUBSETS:
+            msg = "\nSubset name not allowed: " + tag + \
+                  "\nAllowed name(s): " + ", ".join(self.SUBSETS)
+            raise ValueError(msg)    
+
+    def __init__(self, year, tag):        
+        self.check(tag)            
+        self.f = Folder(self.ROOT, tag)             
+        self.output_csv = self.f.get_path("{0}_{1}.csv".format(tag, str(year)))
+        
+    def get_output_csv(self):
+        return self.output_csv      
+        
+    def get_inn_paths(self):    
+        return self.f.get_path("include.csv"), self.f.get_path("exclude.csv")

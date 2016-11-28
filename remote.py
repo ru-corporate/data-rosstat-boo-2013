@@ -6,20 +6,8 @@ import os
 import subprocess
 
 from config import make_dirs
-from config import get_raw_csv_folder, get_rar_folder
+from config import Path
 from config import UNPACK_RAR_EXE, URL
-
-RAW_CSV_FOLDER = get_raw_csv_folder()
-RAR_FOLDER = get_rar_folder()
-
-
-def in_rar_folder(filename):
-    return os.path.join(RAR_FOLDER, filename)
-
-
-def in_raw_csv_folder(filename):
-    return os.path.join(RAW_CSV_FOLDER, filename)
-
 
 class RawDataset():
 
@@ -31,14 +19,14 @@ class RawDataset():
         self.url = URL[year]
         # RAR file path
         rar_filename = self.url.split('/')[-1]
-        self.rar_path = in_rar_folder(rar_filename)
+        self.rar_path = Path(rar_filename).in_rar()        
         # Rosstat raw CSV file path
         self._init_csv_filename()
 
     def _init_csv_filename(self):
         if os.path.exists(self.rar_path):
             csv_filename = self._rar_content()
-            self.csv_path = in_raw_csv_folder(csv_filename)
+            self.csv_path = Path(csv_filename).in_raw_csv() 
         else:
             self.csv_path = ''
 
@@ -82,7 +70,7 @@ class RawDataset():
             print("Already unpacked:", self.csv_path)
         else:
             print("Unpacking:", self.csv_path)
-            self._unrar(self.rar_path, folder=RAW_CSV_FOLDER)
+            self._unrar(self.rar_path, folder=Path('').in_raw_csv())
         return self.csv_path
 
     def get_filename(self):
