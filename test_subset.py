@@ -1,20 +1,24 @@
+from folders import TEST_SUBSET 
+from subset import inn_filter, Subset
+
 def test_subset():
-     assert False
-     # ITEMS = ['77']
-     # Subset(2015, 'test1').include(ITEMS)._inc == ITEMS
-     # Subset(2015, 'test1').exclude(ITEMS)._exc == ITEMS
+    ITEMS = ['77']
+    Subset(2015, 'test1').include(ITEMS).inc == ITEMS
+    Subset(2015, 'test1').exclude(ITEMS).exc == ITEMS
 
 def test_inn_filter():
-    assert False
-    # gen = [{'inn': 0}, {'inn': 10}, {'inn': 20}, {'inn': 30}]
-    # incs = [0,10]
-    # exs = [20,30]
+    def tf(g1,a1,b1):
+        return list(inn_filter(iter(g1), a1, b1))     
+
+    gen = [{'inn': 0}, {'inn': 10}, {'inn': 20}, {'inn': 30}]
+    assert [] == tf(gen, [10], [10])     
+    assert [{'inn': 0}] == tf(gen, [0, 10], [10])
     
-    # assert [] == list(inn_mask([10],[10]).apply(gen))     
-    # assert [{'inn': 0}] == list(inn_mask([0, 10],[10]).apply(gen))  
+    incs = [0,10]
+    exs = [20,30]    
     
-    # a = list(inn_mask(incs,exs).apply(gen))     
-    # b = list(inn_mask(incs).apply(gen))
-    # c = list(inn_mask(None,exs).apply(gen))   
-    # assert a == b
-    # assert b == c
+    a = tf(gen, incs, exs)
+    b = tf(gen, incs, None)
+    c = tf(gen, None, exs)   
+    assert a == b
+    assert b == c

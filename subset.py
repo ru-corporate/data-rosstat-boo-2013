@@ -11,6 +11,11 @@ from row_parser import parse_row
 
 def emit_rows_by_inn(year, include, exclude):
     gen = emit_raw_dicts(year)
+    gen = inn_filter(gen, include, exclude) 
+    return map(parse_row, gen)
+    
+
+def inn_filter(gen, include, exclude):
     if include:
         print("INNs to include:", include)
         f = lambda row: row_in_list(row, include, "Found INN:")
@@ -19,7 +24,7 @@ def emit_rows_by_inn(year, include, exclude):
         print("INNs to exclude:", exclude)
         f = lambda row: not row_in_list(row, exclude, "Rejected INN:") 
         gen = filter(f, gen) 
-    return map(parse_row, gen)
+    return gen
     
     
 def row_in_list(row, inn_list, found_msg):

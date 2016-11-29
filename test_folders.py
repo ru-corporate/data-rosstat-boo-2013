@@ -37,24 +37,12 @@ def test_subset_folders():
     assert os.path.exists(k.base_path)
     assert os.path.exists(k.path())
 
-class SubsetParsedCSV(ParsedCSV):
-   def __init__(self, year, tag):
-      fn = tag + "_" + str(year) + ".csv"
-      self._path = os.path.join(SubsetFolder(tag).path(), fn)
-      
-      
-class SubsetIncludeINNs(ParsedCSV):
-    def __init__(self, tag):        
-        self._path = SubsetFolder(tag).filepath(INCLUDE_INNS_FILENAME)
-
-        
-class SubsetExcludeINNs(ParsedCSV):    
-    
-    
     
 def test_subset_files():    
-    c1 = folders.SubsetFiles(2015, TEST_SUBSET).get_output_csv()
-    c2 = folders.SubsetFiles(2015, TEST_SUBSET).get_inn_paths() 
+    c1 = folders.SubsetIncludeINNs(TEST_SUBSET).filepath()
+    c2 = folders.SubsetExcludeINNs(TEST_SUBSET).filepath()
+    c3 = folders.SubsetParsedCSV(2015, TEST_SUBSET).filepath()
     assert isinstance(c1, str)
-    assert isinstance(c2, tuple)
+    assert isinstance(c2, str)
+    assert isinstance(c3, str)
     
