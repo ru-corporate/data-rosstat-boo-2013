@@ -96,6 +96,7 @@ Considering /  todo later
 - requirement.txt to allow replicate code
 - in line.py: new dequote()
 - subset for testing, year = 1000
+- new columns for cash_out and form balances
 
 Todo
 ----
@@ -105,8 +106,6 @@ Testing:
 
 Minor:
 - add int() in DATACOLS and change tests
-- new columns for cash_out and form balances
-- use config or class Folder in config.py + assemble new Folder class + test [os.path.exists(d) d for d in Folder.paths]
 
 Slicing:
 - test right companies as largest
@@ -114,6 +113,7 @@ Slicing:
 
 Done or scrapped
 ----------------
+- use config or class Folder in config.py + assemble new Folder class + test [os.path.exists(d) d for d in Folder.paths]
 - data import with inn: test subsetting CSV by list of INN keys
 - data import with inn: provide good inn.txt example
 - data import with inn:exclide inn.txt from git_ignore

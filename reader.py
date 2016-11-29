@@ -12,21 +12,33 @@ from collections import OrderedDict
 import pandas as pd
 
 import config
+
 from inspect_columns import Columns
 from remote import RawDataset
 from row_parser import parse_row, get_parsed_colnames, get_colname_dtypes
+from folders import ParsedCSV, SubsetFiles
 from common import pipe, print_elapsed_time
 
 COLUMNS = Columns.COLUMNS
 RAW_CSV_FORMAT = dict(enc='windows-1251', sep=";")
 
 #
-# row validation function
+# file location wrappers
+#
+
+def get_parsed_csv_path(year):
+   return ParsedCSV(year).filepath()
+
+   
+def get_raw_csv_path(year):
+   return RawDataset(year).get_filename()   
+
+#
+# row validation 
 #
 
 VALID_ROW_WIDTH = len(COLUMNS)
 INN_POSITION = COLUMNS.index('inn')
-
 
 def is_valid(row):
     """Return True if row is valid."""
@@ -44,6 +56,7 @@ def is_valid(row):
 #
 # column names
 #
+
 def emit_raw_colnames():
     """Column names corresponding to emit_raw_rows()."""
     return ['year'] + COLUMNS
@@ -56,6 +69,7 @@ def emit_parsed_colnames():
 #
 # read, filter and parse raw csv
 #
+
 def csv_stream(filename, enc='utf-8', sep=','):
     """Emit CSV rows by filename."""
     if enc not in ['utf-8', 'windows-1251']:
@@ -68,7 +82,7 @@ def csv_stream(filename, enc='utf-8', sep=','):
 
 def emit_raw_rows(year):
     """Emit raw rows by year."""
-    fn = RawDataset(year).get_filename()
+    fn = get_raw_csv_path(year)
     raws = filter(is_valid, csv_stream(fn, **RAW_CSV_FORMAT))
     add_year = lambda row: [year] + row
     return map(add_year, raws)
@@ -121,11 +135,12 @@ def custom_df_reader(file):
 #
 # end user class for dataset access
 #
+
 class Dataset():
 
     def __init__(self, year):
         self.year = year
-        self.output_csv = config.ParsedCSV(year).get_filename()
+        self.output_csv = get_parsed_csv_path(year)
 
     def __colnames__(self):
         return get_parsed_colnames()
@@ -153,17 +168,15 @@ class Dataset():
         return next(islice(self.__get_stream__(), n, n + 1))
         
             
-
-
 #
 # filter by INN
 #
-
 
 def read_inns(path):
     return list(r[0].replace("\ufeff", "") for r in csv_stream(path)
                 if not r[0].startswith("#"))
 
+                
 def read_if_exists(path):
     if os.path.exists(path):
         return read_inns(path)
@@ -178,6 +191,7 @@ def emit_rows_by_inn(year, include, exclude):
     gen = inn_mask(include, exclude).apply(gen) 
     return map(parse_row, gen)
     
+    
 def row_in_list(row, inn_list, found_msg):
     inn = row['inn']
     if inn in inn_list:
@@ -185,6 +199,7 @@ def row_in_list(row, inn_list, found_msg):
        return True
     else:
        return False
+    
     
 class inn_mask():
     
@@ -210,11 +225,12 @@ class inn_mask():
     def apply(self, gen):
         return filter(self.f, pipe(gen))
 
+        
 class Subset(Dataset):
     
     def __init__(self, year, tag):
         self.year=year    
-        loc = config.SubsetLocation(year, tag)
+        loc = SubsetFiles(year, tag)
         self.output_csv=loc.get_output_csv()
         self._inc, self._exc = map(read_if_exists, loc.get_inn_paths())
             
