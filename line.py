@@ -33,7 +33,7 @@ def dequote(name):
         title = QUOTE_CHAR.join(parts[1:])
     else:
         title = name
-    return org, title.strip()
+    return org, title.strip()    
 
 def split_name(line):
     cnt = line.count(QUOTE_CHAR)
