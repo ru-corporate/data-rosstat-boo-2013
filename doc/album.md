@@ -1,0 +1,26 @@
+"Альбом российской корпоративной отчетности-2015"
+=================================================
+- as PDF file / as article
+- title:
+ - "CMF/HSE. Russian corporations 2015: large dataset overview."
+ - "CMF/HSE. Альбом российской корпоративной отчетности-2015."
+- corresponding address
+- data source
+  - Rosstat
+  - who provides commercial interfaces. list-companies.
+- coverage
+  - % as of total, % as of macro
+  - what we like about reporting
+  - what we do not like about reporting
+- interesting facts
+  - by industry
+  - high-growth companies
+  - ...
+  - in focus: Sports and cinema
+- proposed research areas
+- classroom topics
+- advertising:
+  - in HSE
+  - Rosstat
+  - SPARK, etc
+  - facebook/VK

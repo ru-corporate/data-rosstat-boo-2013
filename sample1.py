@@ -6,8 +6,8 @@ Created on Sun Nov 27 14:26:25 2016
 """
 from reader import Dataset
 
-# df15=Dataset(2015).read_df()
-# df13=Dataset(2013).read_df()
+df15=Dataset(2015).read_df()
+df13=Dataset(2013).read_df()
 
 def get(df):
    z = df[df.unit==385][['title','inn','ta']]
@@ -26,7 +26,7 @@ print("ex1 =", df[~ex1].inn.tolist())
 
 q = df[ex1].sort_values('ta_x')[['title_x', 'ta_y', 'ta_x', 'inn']]
 ex2=q.ta_y.isnull()
-print("# Exclusions 2 (values not present in 2013):")
+print("# Exclusions 2 (values not present in 2013, unit eq 385):")
 print("ex2 =", q[ex2].inn.tolist())
 
 UNIT385_EXCLUSIONS = ex1+ex2
