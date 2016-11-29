@@ -11,6 +11,7 @@ Work on:
 - sample0.py
 - sample1.py
 - sample2.py
+- slicer.py
 - make_subset.py
 - reader.py
 
@@ -105,7 +106,7 @@ Testing:
 Minor:
 - add int() in DATACOLS and change tests
 - new columns for cash_out and form balances
-- use config or class Folder in config.py 
+- use config or class Folder in config.py + assemble new Folder class + test [os.path.exists(d) d for d in Folder.paths]
 
 Slicing:
 - test right companies as largest
