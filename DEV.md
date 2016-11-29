@@ -84,6 +84,7 @@ Not todo
   - review: make csv reader/writer work in chunks (after profiler, tests)
   - make <slicer.py> work in chunks, maybe it is faster rather than downloading all data to memory. use existing code from S3.
 - Dataset(year).info()
+- fabric3 to automate some tasks (linter, py.test, builds)
 
 
 Considering /  todo later
@@ -91,18 +92,20 @@ Considering /  todo later
 - better backend to provide this data to students, AWS S3 maybe (large files now saved to git repo, not nice) + AWS library
 - zip sliced CSVs on the fly, do not store main CSVs itself  in <slicer.py> https://docs.python.org/3/library/zipfile.html
 - reports album
-- add nice classification of columns + print list of variables / put list of variables on sheet
-- fabric3 to automate some tasks (linter, py.test, builds)
+- add nice desc of columns + print list of variables / put list of variables on sheet
 - requirement.txt to allow replicate code
 - in line.py: new dequote()
 - subset for testing, year = 1000
 - new columns for cash_out and form balances
+- Testing: test dataset + testing comments/rules + fixtures
+
+Focus
+-----
+
 
 Todo
 ----
-Testing:
-- test dataset
-- testing comments/rules
+
 
 Minor:
 - add int() in DATACOLS and change tests

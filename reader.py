@@ -16,7 +16,7 @@ import config
 from inspect_columns import Columns
 from remote import RawDataset
 from row_parser import parse_row, get_parsed_colnames, get_colname_dtypes
-from folders import ParsedCSV, SubsetFiles
+from folders import ParsedCSV
 from common import pipe, print_elapsed_time
 
 COLUMNS = Columns.COLUMNS
@@ -168,84 +168,6 @@ class Dataset():
         return next(islice(self.__get_stream__(), n, n + 1))
         
             
-#
-# filter by INN
-#
-
-def read_inns(path):
-    return list(r[0].replace("\ufeff", "") for r in csv_stream(path)
-                if not r[0].startswith("#"))
-
-                
-def read_if_exists(path):
-    if os.path.exists(path):
-        return read_inns(path)
-    else:
-        return []  
-
-
-def emit_rows_by_inn(year, include, exclude):
-    gen = emit_raw_dicts(year)
-    print("INNs to include:", include)
-    print("INNs to exclude:", exclude)
-    gen = inn_mask(include, exclude).apply(gen) 
-    return map(parse_row, gen)
-    
-    
-def row_in_list(row, inn_list, found_msg):
-    inn = row['inn']
-    if inn in inn_list:
-       print(found_msg, inn)
-       return True
-    else:
-       return False
-    
-    
-class inn_mask():
-    
-    def ok_to_include(self, row):
-        return row_in_list(row, self.inns, "Found INN:")
-            
-    def ok_to_exclude(self, row):
-        return not row_in_list(row, self.inns, "Rejected INN:")
-    
-    def __init__(self, il=None, el=None):
-        if el and il:
-            self.inns = [x for x in il if x not in el]            
-            self.f = self.ok_to_include
-        elif il:
-            self.inns = il
-            self.f = self.ok_to_include
-        elif el:
-            self.inns = el
-            self.f = self.ok_to_exclude
-        else:
-            raise ValueError() 
-            
-    def apply(self, gen):
-        return filter(self.f, pipe(gen))
-
-        
-class Subset(Dataset):
-    
-    def __init__(self, year, tag):
-        self.year=year    
-        loc = SubsetFiles(year, tag)
-        self.output_csv=loc.get_output_csv()
-        self._inc, self._exc = map(read_if_exists, loc.get_inn_paths())
-            
-    def __get_stream__(self):
-        return pipe(emit_rows_by_inn(self.year, include=self._inc,
-                                                exclude=self._exc))
-    def include(self, inc):
-        """Replace include INN list""" 
-        self._inc = inc  
-        return self 
-    
-    def exclude(self, ex):
-        """Replace exclude INN list""" 
-        self._exc = ex
-        return self
 
         
 if __name__ == "__main__":

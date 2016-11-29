@@ -43,7 +43,7 @@ class Progress():
        See also <http://docs.astropy.org/en/v0.2/_generated/astropy.utils.console.Spinner.html#>
     """
 
-    STEP = 100*1000
+    STEP = 20*1000
 
     def __init__(self):
         self.count = 0

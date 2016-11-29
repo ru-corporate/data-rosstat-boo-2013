@@ -3,9 +3,12 @@
 
 import os
 
-# subfolder names in TREE['subset']
-TEST_SUBSET = 'test1' # used in testing
-SUBSETS = [TEST_SUBSET, 'subset1']
+INCLUDE_INNS_FILENAME = "include.txt"
+EXCLUDE_INNS_FILENAME = "exclude.txt"
+
+# subset folder names 
+TEST_SUBSET = 'test1' 
+SUBSETS = [TEST_SUBSET, 'projects', 'temp', 'largest']
 
 # folder tree for csv's, archives and subsets
 TREE = dict(rar   = os.path.join("data", "temp", "rar")
@@ -63,6 +66,15 @@ class Folder():
     # Note:
     # methods .path() and .filepath() used in remote.py for 'rar' and 'raw_csv' folders
     
+class SubsetFolder(Folder):      
+     base_path = Folder('subset').path()
+     def __init__(self, tag):
+        if is_valid_subset_name(tag):
+            self._path = os.path.join(self.base_path, tag)
+            make_dirs([self._path])
+
+# filenames
+    
 class ParsedCSV():
 
    def __init__(self, year):
@@ -72,44 +84,29 @@ class ParsedCSV():
    def filepath(self):
       return self._path 
       
-class ErrorLog():
+class ErrorLog(ParsedCSV):
 
    def __init__(year): 
         filename = "errors_{}.txt".format(str(year))
-        self.path = os.path.join(Folder("errors").path(), filename)                  
-        
-   def filepath(self):
-      return self.path   
+        self._path = os.path.join(Folder("errors").path(), filename)                  
 
-class SubsetFolder(Folder):      
-
-     base_path = Folder('subset').path()
-     
-     def __init__(self, tag):
-        if is_valid_subset_name(tag):
-            self._path = os.path.join(self.base_path, tag)
-            make_dirs([self._path])
+# subset filenames      
       
-class SubsetFiles():
+class SubsetParsedCSV(ParsedCSV):
+   def __init__(self, year, tag):
+      fn = tag + "_" + str(year) + ".csv"
+      self._path = os.path.join(SubsetFolder(tag).path(), fn)
+      
+      
+class SubsetIncludeINNs(ParsedCSV):
+    def __init__(self, tag):        
+        self._path = SubsetFolder(tag).filepath(INCLUDE_INNS_FILENAME)
 
-    @staticmethod
-    def make_filename(year, tag):
-       return tag + "_" + str(year) + ".csv"
-   
-    def __init__(self, year, tag):        
-        this_sf = SubsetFolder(tag)
-        # output file
-        csv_filename = self.make_filename(year, tag)
-        self.output_csv = this_sf.filepath(csv_filename)
-        # inn lists
-        self.inn_list_tuple = (this_sf.filepath("include.csv"), 
-                               this_sf.filepath("exclude.csv"))
         
-    def get_output_csv(self):
-        return self.output_csv      
-        
-    def get_inn_paths(self):    
-        return self.inn_list_tuple
+class SubsetExcludeINNs(ParsedCSV):  
+    def __init__(self, tag):       
+        self._path = SubsetFolder(tag).filepath(EXCLUDE_INNS_FILENAME)      
+
         
 if __name__ == "__main__":
     d = Folder.__all__()

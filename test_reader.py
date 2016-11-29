@@ -3,33 +3,14 @@
 
 from itertools import islice
 from reader import emit_rows, emit_dicts, emit_raw_rows, emit_raw_dicts
-from reader import inn_mask, emit_rows_by_inn
-from reader import Subset, Dataset
+from reader import Dataset
+from subset import emit_rows_by_inn
 #todo: add testing Dataset
 
-def test_subset():
-     ITEMS = ['77']
-     Subset(2015, 'test1').include(ITEMS)._inc == ITEMS
-     Subset(2015, 'test1').exclude(ITEMS)._exc == ITEMS
 
 #
 #   row/dict emitters
 #
-
-def test_inn_filter():
-    gen = [{'inn': 0}, {'inn': 10}, {'inn': 20}, {'inn': 30}]
-    incs = [0,10]
-    exs = [20,30]
-    
-    assert [] == list(inn_mask([10],[10]).apply(gen))     
-    assert [{'inn': 0}] == list(inn_mask([0, 10],[10]).apply(gen))  
-    
-    a = list(inn_mask(incs,exs).apply(gen))     
-    b = list(inn_mask(incs).apply(gen))
-    c = list(inn_mask(None,exs).apply(gen))   
-    assert a == b
-    assert b == c
-    
 
 
 def test_emitters():
@@ -41,42 +22,43 @@ def test_emitters():
 
     # _ = [int(x) for x in DatasetByINN(2015).inn_list if not str(x).startswith("#")]
 
+    
 def test_inn_slicing():
     z = next(emit_rows(2015))
     inn = z[8]
     assert inn == '3435900517'
     assert next(emit_rows(2015)) == next(emit_rows_by_inn(2015, include=[inn], exclude=[]))
-
+    
+    
 def test_a_p():
-    gen1=emit_raw_dicts(2015)
-    gen2=emit_dicts(2015)
+    gen1=emit_raw_dicts(2015)    
     m = next(gen1)
     assert m['1600'] == '171989'
     assert m['1700'] == '171989'
-
+    assert m['1600_lag'] == m['1700_lag']
+    
+    gen2=emit_dicts(2015)
     u = next(gen2)
     assert u['ta'] == '171989'
     assert int(u['ta'])-int(u['ta_fix'])-int(u['ta_nonfix']) == 0
+    assert int(u['ta_lag'])-int(u['ta_fix_lag'])-int(u['ta_nonfix_lag']) == 0
 
 
 def test_emitters2():
 
     TEST_YEAR = 2015
-    POS = 0
+    POS = 25
 
     def getter(func, n=POS, year=TEST_YEAR):
         return next(islice(func(year),n,n+1))
 
-    raw_row = getter(emit_raw_rows)
     raw_dict = getter(emit_raw_dicts)
     assert raw_dict['1600'] == raw_dict['1700']
+    assert raw_dict['1600_lag'] == raw_dict['1700_lag']
 
-    parsed_row = getter(emit_rows)
-    parsed_dict = getter(emit_dicts)
-
-    d=parsed_dict
+    d = getter(emit_dicts)
     assert int(d['ta']) == int(d['ta_fix'])+int(d['ta_nonfix'])
     assert int(d['tp']) == int(d['tp_cap'])+int(d['tp_short'])+int(d['tp_long'])
     assert int(d['ta']) == int(d['tp'])
-
+    assert int(d['ta_lag']) == int(d['tp_lag'])
 
