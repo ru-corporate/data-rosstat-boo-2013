@@ -138,7 +138,7 @@ class Columns():
                  ('1500',     'tp_short'),
                  ('1700',     'tp'),
                  ('2110',     'sales'),
-                 ('2200',     'profit_operational'),
+                 ('2200',     'profit_oper'),
                  ('2330',     'exp_interest'),
                  ('2300',     'profit_before_tax'),
                  ('1150_lag', 'of_lag'),
@@ -152,17 +152,21 @@ class Columns():
                  ('1500_lag', 'tp_short_lag'),
                  ('1700_lag', 'tp_lag'),
                  ('2110_lag', 'sales_lag'),
-                 ('2200_lag', 'profit_operational_lag'),
+                 ('2200_lag', 'profit_oper_lag'),
                  ('2330_lag', 'exp_interest_lag'),
                  ('2300_lag', 'profit_before_tax_lag'),
-                 ('4110', 'cash_in_operations_total'),
-                 ('4111', 'cash_in_operations_sales'),
+                 ('4100', 'cash_flow_oper'),
+                 ('4200', 'cash_flow_inv'),
+                 ('4300', 'cash_flow_fin'),   
+                 ('4400', 'cash_flow'),                 
+                 ('4110', 'cash_in_oper_total'),
+                 ('4111', 'cash_in_oper_sales'),
                  ('4121', 'paid_to_supplier'),
                  ('4122', 'paid_to_worker'),
                  ('4123', 'paid_interest'),
                  ('4124', 'paid_profit_tax'),
                  ('4129', 'paid_other_costs'),
-                 ('4221', 'cash_out_investment_of')])
+                 ('4221', 'cash_out_inv_of')])
 
     DATACOLS = list(RENAMER.keys())
     RENAMED_DATACOLS = list(RENAMER.values())

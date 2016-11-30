@@ -80,12 +80,9 @@ Not todo
 - use profiler to analyse program <https://pymotw.com/2/profile/>
 - provide R/Pandas reader funcs for the files as <dataset.r>, <dataset.py>
 - as package
-- chunks
-  - review: make csv reader/writer work in chunks (after profiler, tests)
-  - make <slicer.py> work in chunks, maybe it is faster rather than downloading all data to memory. use existing code from S3.
 - Dataset(year).info()
 - fabric3 to automate some tasks (linter, py.test, builds)
-
+- add int() in DATACOLS and change tests
 
 Considering /  todo later
 -------------------------
@@ -102,20 +99,20 @@ Considering /  todo later
 Focus
 -----
 
+Slicing:
+- test right companies as largest
+
 
 Todo
 ----
-
-
-Minor:
-- add int() in DATACOLS and change tests
-
-Slicing:
-- test right companies as largest
 - slice bln and larger companies
+
 
 Done or scrapped
 ----------------
+- chunks
+  - review: make csv reader/writer work in chunks (--after profiler, tests--)
+  - make <slicer.py> work in chunks, maybe it is faster rather than downloading all data to memory. use existing code from S3.
 - use config or class Folder in config.py + assemble new Folder class + test [os.path.exists(d) d for d in Folder.paths]
 - data import with inn: test subsetting CSV by list of INN keys
 - data import with inn: provide good inn.txt example

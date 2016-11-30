@@ -6,8 +6,9 @@ Created on Sun Nov 27 15:36:24 2016
 """
 
 from reader import Dataset
-#df = Dataset(2015).read_df()
-#df0 = Dataset(2013).read_df()
+df = Dataset(2015).read_df()
+df0 = Dataset(2013).read_df()
+
 df.nlargest(20, 'ta')[['title','inn', 'unit']]
 
 # suspicious
