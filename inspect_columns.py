@@ -168,5 +168,7 @@ class Columns():
                  ('4129', 'paid_other_costs'),
                  ('4221', 'cash_out_inv_of')])
 
+    START_TEXTCOLS=['name', 'okpo', 'okopf', 'okfs', 'okved', 'inn', 'unit',
+                    'report_type']    
     DATACOLS = list(RENAMER.keys())
     RENAMED_DATACOLS = list(RENAMER.values())

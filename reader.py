@@ -171,5 +171,61 @@ class Dataset():
 
         
 if __name__ == "__main__":
-     Subset(2015, 'test1').to_csv()
-     z = next(emit_rows(2015))
+     #Subset(2015, 'test1').to_csv()
+    z = next(emit_raw_rows(2015))
+
+    columns = ['year'] + Columns.COLUMNS
+    K=9    
+    assert columns.index('report_type') + 1 == K
+    bal_col = [x for x in columns if x[0] in ['1','2','4']]
+    ix = [columns.index(x) for x in bal_col]    
+
+    def split_row(x, k=K):
+        date = x.pop(-1)
+        text = x[:k] + [date]
+        data = [x for i,x in enumerate(x) if i in ix]
+        return text, data
+         
+    def to_tag(colname):
+        return 'b'+colname
+        
+    text_colnames, data_colnames = split_row(columns)
+    data_colnames = [to_tag(n) for n in data_colnames]  
+    
+    assert text_colnames[-1] == 'date'
+    assert text_colnames[-2] == 'report_type'
+    assert data_colnames[0] == 'b1110'
+     
+    from collections import namedtuple
+
+    text_vals, data_vals = split_row(z, k=K)
+    
+    Text = namedtuple("Text", text_colnames)
+    Data = namedtuple("Data", data_colnames)
+    text = Text._make(text_vals)
+    data = Data._make(data_vals)
+    
+    class Row():        
+        def __init__(self, incoming_row):
+            text_vals, data_vals = split_row(incoming_row)
+            self.text = Text._make(text_vals)
+            self.data = Data._make(data_vals)
+        def get_data_value(self, colname):
+            return getattr (self.data, to_tag(colname))
+        def data_subset(self, fields):
+            return [int(getattr(self.data, fld)) for fld in fields]
+            
+        
+            
+    row = Row(z)
+    assert row.get_data_value('2200') == '-49052'
+            
+            
+            
+            
+
+     
+     
+     
+     
+     
