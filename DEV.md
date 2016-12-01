@@ -75,41 +75,41 @@ Implementation details:
 Not todo
 -------
 - error messages in is_filter
-- generate documentation
-- save everything in SQL database (sqlite/mysql) using sqlalchemy
-- use profiler to analyse program <https://pymotw.com/2/profile/>
 - provide R/Pandas reader funcs for the files as <dataset.r>, <dataset.py>
-- as package
-- Dataset(year).info()
-- fabric3 to automate some tasks (linter, py.test, builds)
-- add int() in DATACOLS and change tests
-
-Considering /  todo later
--------------------------
-- better backend to provide this data to students, AWS S3 maybe (large files now saved to git repo, not nice) + AWS library
-- zip sliced CSVs on the fly, do not store main CSVs itself  in <slicer.py> https://docs.python.org/3/library/zipfile.html
-- reports album
-- add nice desc of columns + print list of variables / put list of variables on sheet
 - requirement.txt to allow replicate code
-- in line.py: new dequote()
-- subset for testing, year = 1000
-- new columns for cash_out and form balances
-- Testing: test dataset + testing comments/rules + fixtures
+- zip sliced CSVs on the fly, do not store main CSVs itself in <slicer.py> https://docs.python.org/3/library/zipfile.html
+- better backend to provide this data to students, AWS S3 maybe (large files now saved to git repo, not nice) + AWS library
+- Dataset(year).info() + add nice desc of columns + print list of variables / put list of variables on sheet (_fields)
+- testing: subset for testing, year = 1000, test dataset + testing comments/rules + fixtures
+- realign subsets.py
 
-Focus
------
+Unclear how to do 
+-----------------
+- use profiler to analyse program <https://pymotw.com/2/profile/>
+- generate documentation
+- fabric3 to automate some tasks (linter, py.test, builds)
+- as package
+- save everything in SQL database (sqlite/mysql) using sqlalchemy
 
-Slicing:
-- test right companies as largest
+Todo later
+----------
+- reports album
+- excercises
+- presentation 
 
 
 Todo
 ----
+- test right companies as largest
 - slice bln and larger companies
 
 
 Done or scrapped
 ----------------
+- scapped: revert to int in DATACOLS and change tests
+- new columns for cash_out and form balances
+- in line.py: new dequote()
+- expensive namedtuples: https://github.com/epogrebnyak/data-rosstat-boo-2013/tree/named_tuples
 - chunks
   - review: make csv reader/writer work in chunks (--after profiler, tests--)
   - make <slicer.py> work in chunks, maybe it is faster rather than downloading all data to memory. use existing code from S3.
