@@ -2,3 +2,5 @@
 *.pyc
 .cache/*
 *.rar
+.idea/*
+.vscode/*
