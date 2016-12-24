@@ -1,8 +1,16 @@
-from config import VALID_YEARS
-from remote import RawDataset
-from reader import Dataset
+"""Run parts of boo package."""
+from boo import VALID_YEARS
+from boo import Dataset, RawDataset
 
-Dataset(2015).to_csv(True)
+print(VALID_YEARS)
+RawDataset(2015).download()
+#Dataset(2015).to_csv
+
+
+# from remote import RawDataset
+# from reader import Dataset
+
+#Dataset(2015).to_csv(True)
 
 #for year in VALID_YEARS:
 #    RawDataset(year).download().unrar()

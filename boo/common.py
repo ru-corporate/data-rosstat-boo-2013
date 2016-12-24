@@ -2,7 +2,7 @@
 """Functions for other modules (screen messages and error logger)."""
 
 import time
-import config
+from .folders import ErrorLog
 
 
 def print_elapsed_time(foo):
@@ -34,8 +34,7 @@ class Logger(GenericLogger):
     """Logger with predefined filename for error stream."""
 
     def __init__(self, year):
-        filename = config.make_path_error_log(year)
-        super().__init__(filename)
+        super().__init__(filename=ErrorLog(year).filepath())
 
 
 class Progress():

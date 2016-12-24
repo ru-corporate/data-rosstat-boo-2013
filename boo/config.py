@@ -18,6 +18,7 @@ VALID_YEARS = [2012, 2013, 2014, 2015]
 IS_WINDOWS = (platform.system() == 'Windows')
 
 if IS_WINDOWS:
-    UNPACK_RAR_EXE = os.path.join('bin', 'unrar.exe')
+    root = os.path.dirname(os.path.realpath(__file__))
+    UNPACK_RAR_EXE = os.path.join(root, 'bin', 'unrar.exe')
 else:
     UNPACK_RAR_EXE = 'unrar'

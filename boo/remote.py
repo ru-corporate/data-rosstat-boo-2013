@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 """Download and unpack CSV file from Rosstat web site."""
 
-import requests
 import os
 import subprocess
 
-from folders import Folder
-from config import UNPACK_RAR_EXE, URL
+import requests
+
+from .folders import RarFolder, RawCsvFolder
+from .config import UNPACK_RAR_EXE, URL
 
 class RawDataset():
 
@@ -15,14 +16,14 @@ class RawDataset():
         self.url = URL[year]
         # RAR file path
         rar_filename = self.url.split('/')[-1]
-        self.rar_path = Folder('rar').filepath(rar_filename)
+        self.rar_path = RarFolder.filepath(rar_filename)
         # Rosstat raw CSV file path
         self._init_csv_filename()
 
     def _init_csv_filename(self):
         if os.path.exists(self.rar_path):
             csv_filename = self._rar_content()
-            self.csv_path = Folder('raw_csv').filepath(csv_filename) 
+            self.csv_path = RawCsvFolder.filepath(csv_filename)
         else:
             self.csv_path = ''
 
@@ -66,7 +67,7 @@ class RawDataset():
             print("Already unpacked:", self.csv_path)
         else:
             print("Unpacking:", self.csv_path)
-            self._unrar(self.rar_path, folder=Folder('raw_csv').path())
+            self._unrar(self.rar_path, folder=RawCsvFolder.path())
         return self.csv_path
 
     # todo: change name to 'get_raw_csv_path' using IDE
@@ -74,7 +75,7 @@ class RawDataset():
         if os.path.exists(self.csv_path):
             return self.csv_path
         else:
-            msg = "Source CSV file for year {} not found. ".format(self.year) +\
+            msg = "\nSource CSV file for year {} not found. ".format(self.year) +\
                   "\nUse RawDataset({}).download().unrar() to proceed.".format(self.year)
             raise FileNotFoundError(msg)
 

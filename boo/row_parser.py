@@ -4,9 +4,9 @@ Created on Sat Nov 26 13:37:16 2016
 
 @author: Евгений
 """
-from inspect_columns import Columns
 
 from numpy import int64 
+from .inspect_columns import Columns
 
 INT_TYPE = int64
 EMPTY = int('0')

@@ -1,0 +1,50 @@
+
+INCLUDE_INNS_FILENAME = "include.txt"
+EXCLUDE_INNS_FILENAME = "exclude.txt"
+
+# subset folder names 
+TEST_SUBSET = 'test1' 
+SUBSETS = [TEST_SUBSET, 'projects', 'temp', 'largest']
+
+def is_valid_subset_name(tag):
+    if not tag in SUBSETS:
+        msg1 = "\nSubset name not allowed: " + tag 
+        msg2 = "\nAllowed name(s): " + ", ".join(SUBSETS)
+        raise ValueError(msg1+msg2)
+    else:
+        return True 
+		
+class SubsetFolder(Folder):      
+     base_path = Folder('subset').path()
+     def __init__(self, tag):
+        if is_valid_subset_name(tag):
+            self._path = os.path.join(self.base_path, tag)
+            make_dirs([self._path])
+
+# subset filenames      
+      
+class SubsetParsedCSV(ParsedCSV):
+   def __init__(self, year, tag):
+      fn = tag + "_" + str(year) + ".csv"
+      self._path = os.path.join(SubsetFolder(tag).path(), fn)
+      
+      
+class SubsetIncludeINNs(ParsedCSV):
+    def __init__(self, tag):        
+        self._path = SubsetFolder(tag).filepath(INCLUDE_INNS_FILENAME)
+
+        
+class SubsetExcludeINNs(ParsedCSV):  
+    def __init__(self, tag):       
+        self._path = SubsetFolder(tag).filepath(EXCLUDE_INNS_FILENAME)     
+
+
+       
+if __name__ == "__main__":
+    d = Folder.__all__()
+    a = ParsedCSV(2015)
+    k = SubsetFolder(TEST_SUBSET)
+    c1 = SubsetFiles(2015, TEST_SUBSET).get_output_csv()
+    c2 = SubsetFiles(2015, TEST_SUBSET).get_inn_paths()
+		
+
