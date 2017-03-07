@@ -3,9 +3,9 @@
 
 import os
 
-# folder tree for rar archives and csv's  
+# folder tree for rar archives and csv's
 root = os.path.dirname(os.path.realpath(__file__))
-data_dir   = os.path.join(root, "data")
+data_dir = os.path.join(root, "data")
 TREE = dict(rar   = os.path.join(data_dir, "downloaded_rar")
         , raw_csv = os.path.join(data_dir, "downloaded_csv")
         , errors  = os.path.join(data_dir, "parsing_errors")

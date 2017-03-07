@@ -1,26 +1,34 @@
-#Machine-readable public dataset of 2012-2015 Russian enterprises financial reports
+# Annual financial reports of Russian enterprises (2012-2015) 
 
-The code allows to collect corporate data from Rosstat statistics office web site and store full or sliced CSV
-files for further analysis in R/pandas/Eviews.
 
-Final uses
-==========
-- students can download smaller subsets of Rosstat data as csv/xlsx files (fewer variables, less companies, 3-5Mb to 10-20Mb per year)
-- a more experienced user can reproduce a clean version of full Rosstat dataset on a local computer (300Mb-1.3Gb per year)
+The code allows to collect data from Rosstat web site 
+and store all or parts of it as local CSV files 
+for further analysis in R/pandas/Eviews.
+
+
+Full dataset weights from 300 Mb (2012) to 1.3 Gb (2015). 
+Smaller subsets have fewer variables and less companies 
+weight 3-5Mb to 10-20Mb. You can perform analysis based on 
+smaller data subset for example in Excel and then explore 
+full dataset using R or pandas. 
+
 
 Source data
 ===========
-- For every year in 2012-2015 we have a file with column names and archived CSV with data. Column names are the same for all 4 years.
+- For every year in 2012-2015 we have a file with column names and archived 
+  CSV with data. Column names are the same for all 4 years.
 - Each data file 1-2 Gb when unpacked, >250 columns, 1 to 2 mln rows.
 - Source dataset is a bit dirty:
  -- a small part of rows uses different monetary units (rub and mln run instead of thousand rub). this is main data
     transformation issue
  -- several rows are corrupted in source files (see "Known bugs" below)
 
+
+
 Usage
 =====
 Use code below to obtain 2012 dataset. Supported years are 2012-2015
-but older files are smaller, try running 2012 or 2013 before 2015.
+but older files are smaller, try running 2012 before later years.
 
 ```python
 from remote import RawDataset

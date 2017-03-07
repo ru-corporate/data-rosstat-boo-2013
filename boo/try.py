@@ -1,4 +1,7 @@
-""" """
+"""Run in console as:
+   data-rosstat-boo-2013>python -m boo.try
+"""
+
 from . import config
 print (config.VALID_YEARS)
 
