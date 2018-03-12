@@ -1,18 +1,23 @@
-#Machine-readable public dataset of 2012-2015 Russian enterprises financial reports
+# Machine-readable public dataset of 2012-2015 Russian enterprises financial reports
 
 The code allows to collect corporate data from Rosstat statistics office web site and store full or sliced CSV
 files for further analysis in R/pandas/Eviews.
 
-Final uses
-==========
-- students can download smaller subsets of Rosstat data as csv/xlsx files (fewer variables, less companies, 3-5Mb to 10-20Mb per year)
+- novice users can download smaller subsets of Rosstat data as csv/xlsx files (fewer variables, less companies, size 3-5Mb to 10-20Mb per year)
+
 - a more experienced user can reproduce a clean version of full Rosstat dataset on a local computer (300Mb-1.3Gb per year)
+
+Latest data
+===========
+
+- http://www.gks.ru/opendata/dataset/7708234640-bdboo2016
 
 Source data
 ===========
 - For every year in 2012-2015 we have a file with column names and archived CSV with data. Column names are the same for all 4 years.
 - Each data file 1-2 Gb when unpacked, >250 columns, 1 to 2 mln rows.
-- Source dataset is a bit dirty:
+
+Source dataset is a bit dirty:
  -- a small part of rows uses different monetary units (rub and mln run instead of thousand rub). this is main data
     transformation issue
  -- several rows are corrupted in source files (see "Known bugs" below)
@@ -36,14 +41,12 @@ Note: you will be operating with large datasets, creating files may take 2-3 min
 and much longer on laptops and older machines. Consider downloading smaller datasets [here], if this code
 hangs on your machine.
 
-Download and unrar raw csv
---------------------------
+#### Download and unrar raw csv
 - Download rar file  
 - Unpack raw csv from rar file  
 
 
-Make local csv file  
--------------------
+#### Make local csv file  
 - Purge broken lines from raw csv (company has no INN field, wrong number of columns)
 - Transform data:
   - adjust numeric values to '000 rub
@@ -53,16 +56,13 @@ Make local csv file
 - Add headers, datacolumns as in Columns().RENAMER
 - Save as local CSV file
 
-Read local csv file as pandas dataframe
----------------------------------------
+##### Read local csv file as pandas dataframe
 - Read dataframe using ```pd.read_csv``` with dtypes (it loads file faster)
 
 
-Subsets: parts dataset
-----------------------
+#### Subsets: parts dataset
 - Dataframe like ```df=Dataset(year).read_df()``` still very big, a lot of noise and slow to explore  
 - Subsets allow creating row slices of dataset, column names stay the same acr 
-- use subsets 
 
 ```python  
 from reader import Subset
