@@ -7,6 +7,8 @@ from column_names import colname_to_varname_dict as SUB
 NON_MONETARY_COLUMNS = ['inn', 'year', 'okved1', 'region', 'title']
 MY_COLS = NON_MONETARY_COLUMNS + [x for x in SUB.keys()]
 
+# COMMENT: In this file it would help to have docstrings in the methods to explain what they do
+
 def shorten(df, new_colnames=MY_COLS, replace_colnames_dict=SUB):
     return df[new_colnames].rename(columns=replace_colnames_dict)
 
@@ -23,7 +25,11 @@ def flags(df):
 def check_balance(df, treshold = 0.1):
     for flag in flags(df):
         assert flag < treshold
+        # COMMENT: Here can also do:
+        # if flag>=threshold:
+        #   raise Exception("Flag {} >= threshold {}".format(flag, threshold))
             
+# COMMENT: fileds -> typo
 def _extract_fileds_from_compact_df(compact_df_prev, fields = ['sales', 'of']):
     sub = {x:x+"_prev" for x in fields} 
     df2 = compact_df_prev[fields].rename(columns=sub)
@@ -46,11 +52,16 @@ def make_main():
     merged_df.to_csv("data/merged.csv", sep = ";", index = False, encoding = "utf-8")
     
 if __name__ == "__main__":
+    # COMMENT: If this is where the memory crashes, consider reading the file in chunks
+    # first answer on here:
+    # http://stackoverflow.com/questions/31765123/pandas-dataframe-merge-memoryerror
     df = pd.read_csv("data/all2013.csv", sep = ";")
     renamed_df = shorten(df)  
     
     # add fields from previous year
     df2 = get_prev_compact_df()
+    # COMMENT: If this is where the memory crashes, perhaps setting inn as the index can help.
+    # If not, we can indeed look into sql solutions (they will still need indexes on inn for sure though)
     merged_df = renamed_df.merge(df2, on='inn')
     
     merged_df.to_csv("data/merged.csv", sep = ";", index = False, encoding = "utf-8")
