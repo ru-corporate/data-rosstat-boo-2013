@@ -1,4 +1,4 @@
-# Machine-readable public dataset of 2012-2015 Russian enterprises financial reports
+# 2012-2016 Russian enterprises financial reports
 
 The code allows to collect corporate data from Rosstat statistics office web site and store full or sliced CSV
 files for further analysis in R/pandas/Eviews.
