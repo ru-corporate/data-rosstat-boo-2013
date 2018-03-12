@@ -3,14 +3,15 @@
 The code allows to collect corporate data from Rosstat statistics office web site and store full or sliced CSV
 files for further analysis in R/pandas/Eviews.
 
-- novice users can download smaller subsets of Rosstat data as csv/xlsx files (fewer variables, less companies, size 3-5Mb to 10-20Mb per year)
+Easy path: novice users can download smaller subsets of Rosstat data as csv/xlsx files (fewer variables, less companies, size 3-5Mb to 10-20Mb per year)
 
-- a more experienced user can reproduce a clean version of full Rosstat dataset on a local computer (300Mb-1.3Gb per year)
+Hard way: a more experienced user can reproduce a clean version of full Rosstat dataset on a local computer (300Mb-1.3Gb per year)
 
-Latest data
-===========
-
+Latest data:
 - http://www.gks.ru/opendata/dataset/7708234640-bdboo2016
+
+Variable descriptions:
+- https://github.com/epogrebnyak/data-rosstat-boo-2013
 
 Source data
 ===========
